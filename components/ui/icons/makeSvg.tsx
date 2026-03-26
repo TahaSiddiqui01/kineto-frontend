@@ -25,7 +25,7 @@ export function createIconComponent(
   svgString: string,
   defaultProps: Partial<IconProps> = {}
 ) {
-  return React.forwardRef<SVGSVGElement, IconProps>((props, ref) => {
+  return React.forwardRef<SVGSVGElement, IconProps>(function IconComponent(props, ref) {
     const {
       size = 24,
       width,
