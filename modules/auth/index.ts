@@ -1,4 +1,3 @@
-import { appWriteClient } from "@/lib/app-write-client"
 import { createServerClient } from "@/lib/app-write-server-client"
 import { MagicLinkUrlParams } from "@/models/auth"
 import { Client, ID, Account } from "node-appwrite"

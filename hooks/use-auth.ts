@@ -1,5 +1,3 @@
-import { MagicLinkUrlParams } from "@/models/auth"
-import { authentication } from "@/modules/auth"
 import { authService } from "@/services/auth.service"
 import { useMutation } from "@tanstack/react-query"
 
