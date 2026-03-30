@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Roboto } from "next/font/google";
 import "./globals.css";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import QueryProvider from "@/components/providers/query-provider"
+import { Toaster } from "sonner";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -23,12 +26,18 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+
   return (
     <html
       lang="en"
       className={`${geistMono.variable} ${roboto.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <QueryProvider>
+          {children}
+        </QueryProvider>
+      </body>
     </html>
   );
 }

@@ -1,15 +1,16 @@
-import { appWriteClient } from "@/lib/app-write-client.server"
-import { MagicLinkUrlParams } from "@/models/auth";
-import { Client, ID, Account } from "appwrite"
+import { appWriteClient } from "@/lib/app-write-client"
+import { createServerClient } from "@/lib/app-write-server-client"
+import { MagicLinkUrlParams } from "@/models/auth"
+import { Client, ID, Account } from "node-appwrite"
+import { Account as ServerAccount } from "node-appwrite"
 
 class Authentication {
 
-    private appWriteClient: Client | null = null;
+    private appWriteClient: Client | null = null
 
     constructor() {
-        this.appWriteClient = appWriteClient
+        this.appWriteClient = createServerClient()
     }
-
 
     async createMagicUrlToken(params: MagicLinkUrlParams) {
         const account = new Account(this.appWriteClient!)
@@ -27,17 +28,15 @@ class Authentication {
         } catch (error) {
             console.error("Error creating magic URL token:", error)
             return {
-                error
+                error,
+                data: null
             }
         }
     }
 
-
     async createSession(userId: string, secret: string) {
-        const account = await new Account(this.appWriteClient!)
-
+        const account = new ServerAccount(this.appWriteClient!)
         try {
-            const account = new Account(this.appWriteClient!)
             const response = await account.createSession({ userId, secret })
             return {
                 data: response,
@@ -51,7 +50,6 @@ class Authentication {
             }
         }
     }
-
 
 }
 

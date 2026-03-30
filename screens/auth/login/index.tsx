@@ -1,14 +1,41 @@
 "use client"
 
-import { GitBranchMinus, Mail } from "lucide-react"
+import { Mail } from "lucide-react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { GithubIcon } from "@/components/ui/icons/KinetoIcons"
+import { GithubIcon, GoogleIcon } from "@/components/ui/icons/KinetoIcons"
+import { useAuth } from "@/hooks/use-auth"
+
+const loginSchema = z.object({
+  email: z.string().min(1, "Email is required").email("Enter a valid email address"),
+})
+
+type LoginFormValues = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
+  const { createMagicLink } = useAuth()
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+  })
+
+  function onSubmit(data: LoginFormValues) {
+    createMagicLink.mutate({
+      email: data.email,      
+      url: `${window.location.origin}/api/v1/auth/callback/email`,
+    })
+  }
+
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-background px-6">
-      
+
       {/* Background Glow */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute left-1/2 top-0 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-purple-500/20 blur-3xl" />
@@ -16,7 +43,7 @@ export default function LoginPage() {
       </div>
 
       <div className="w-full max-w-md space-y-6">
-        
+
         {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-semibold tracking-tight">
@@ -29,27 +56,16 @@ export default function LoginPage() {
 
         {/* Glass Card */}
         <div className="rounded-2xl border bg-background/60 backdrop-blur-xl shadow-xl p-6 space-y-4">
-          
+
           {/* Social Buttons */}
           <div className="space-y-2">
-            <Button
-              variant="outline"
-              className="w-full h-11 rounded-xl"
-            >
+            <Button variant="outline" className="w-full h-11 rounded-xl">
               <GithubIcon className="mr-2 h-4 w-4" />
               Continue with GitHub
             </Button>
 
-            <Button
-              variant="outline"
-              className="w-full h-11 rounded-xl"
-            >
-              <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
-                <path
-                  fill="currentColor"
-                  d="M21.35 11.1H12v2.8h5.4c-.23 1.4-1.4 4.1-5.4 4.1-3.25 0-5.9-2.7-5.9-6s2.65-6 5.9-6c1.85 0 3.1.8 3.8 1.5l2.6-2.5C16.85 3.7 14.7 3 12 3 6.95 3 3 7 3 12s3.95 9 9 9c5.2 0 8.65-3.65 8.65-8.8 0-.6-.05-1-.15-1.1Z"
-                />
-              </svg>
+            <Button variant="outline" className="w-full h-11 rounded-xl">
+              <GoogleIcon />
               Continue with Google
             </Button>
           </div>
@@ -62,17 +78,39 @@ export default function LoginPage() {
           </div>
 
           {/* Magic Link */}
-          <form className="space-y-3">
-            <Input
-              type="email"
-              placeholder="you@example.com"
-              className="h-11 rounded-xl"
-              required
-            />
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+            <div className="space-y-1">
+              <Input
+                type="email"
+                placeholder="you@example.com"
+                className="h-11 rounded-xl"
+                aria-invalid={!!errors.email}
+                {...register("email")}
+              />
+              {errors.email && (
+                <p className="text-xs text-destructive px-1">{errors.email.message}</p>
+              )}
+            </div>
 
-            <Button className="w-full h-11 rounded-xl">
+            {createMagicLink.isError && (
+              <p className="text-xs text-destructive px-1">
+                Something went wrong. Please try again.
+              </p>
+            )}
+
+            {createMagicLink.isSuccess && (
+              <p className="text-xs text-green-500 px-1">
+                Magic link sent! Check your inbox.
+              </p>
+            )}
+
+            <Button
+              type="submit"
+              className="w-full h-11 rounded-xl"
+              disabled={createMagicLink.isPending}
+            >
               <Mail className="mr-2 h-4 w-4" />
-              Send Magic Link
+              {createMagicLink.isPending ? "Sending…" : "Send Magic Link"}
             </Button>
           </form>
         </div>
