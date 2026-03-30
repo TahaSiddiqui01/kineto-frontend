@@ -46,18 +46,28 @@ export function createIconComponent(
     const iconWidth = width || size;
     const iconHeight = height || size;
 
-    // Parse the SVG string to extract attributes and content
-    const parser = new DOMParser();
-    const svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
-    const svgElement = svgDoc.querySelector('svg');
+    // Parse the SVG string to extract attributes and content without browser APIs
+    const svgMatch = svgString.match(/<svg\b([^>]*)>([\s\S]*?)<\/svg>/i);
 
-    if (!svgElement) {
+    if (!svgMatch) {
       console.error('Invalid SVG string provided');
       return null;
     }
 
-    // Extract the SVG content (everything inside the <svg> tag)
-    const svgContent = svgElement.innerHTML;
+    const svgAttributes = svgMatch[1];
+    const svgContent = svgMatch[2];
+
+    const attrRegex = /([\w:-]+)(?:=(['"])([\s\S]*?)\2)?/g;
+    const attrs: Record<string, string> = {};
+    let attrMatch: RegExpExecArray | null;
+
+    while ((attrMatch = attrRegex.exec(svgAttributes))) {
+      const name = attrMatch[1];
+      const value = attrMatch[3] ?? '';
+      attrs[name] = value;
+    }
+
+    const viewBox = attrs.viewBox || '0 0 24 24';
 
     // Create container styles
     const containerStyle: React.CSSProperties = {
@@ -77,7 +87,7 @@ export function createIconComponent(
     const svgProps: React.SVGProps<SVGSVGElement> = {
       width: iconWidth,
       height: iconHeight,
-      viewBox: svgElement.getAttribute('viewBox') || '0 0 24 24',
+      viewBox,
       fill: fill || color || 'currentColor',
       stroke: stroke,
       strokeWidth: strokeWidth,
