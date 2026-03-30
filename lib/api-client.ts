@@ -38,7 +38,7 @@ export const apiClient = async <T>(endpoint: string, options: RequestInit = {}):
 
     return await response.json();
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     // 3. Handle Network Failures (DNS, Offline, CORS)
     if (!error.status) {
       console.error("Network or Syntax Error:", error);
