@@ -1,6 +1,6 @@
 "use client"
 
-import { Mail } from "lucide-react"
+import { Mail, Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -16,7 +16,7 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
-  const { createMagicLink } = useAuth()
+  const { createMagicLink, googleAuth, githubAuth } = useAuth()
 
   const {
     register,
@@ -28,10 +28,12 @@ export default function LoginPage() {
 
   function onSubmit(data: LoginFormValues) {
     createMagicLink.mutate({
-      email: data.email,      
-      url: `${window.location.origin}/api/v1/auth/callback/email`,
+      email: data.email,
+      url: `${window.location.origin}/api/v1/auth/callback/success`,
     })
   }
+
+  const oauthPending = googleAuth.isPending || githubAuth.isPending
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-background px-6">
@@ -59,13 +61,27 @@ export default function LoginPage() {
 
           {/* Social Buttons */}
           <div className="space-y-2">
-            <Button variant="outline" className="w-full h-11 rounded-xl">
-              <GithubIcon className="mr-2 h-4 w-4" />
+            <Button
+              variant="outline"
+              className="w-full h-11 rounded-xl"
+              disabled={oauthPending}
+              onClick={() => githubAuth.mutate()}
+            >
+              {githubAuth.isPending
+                ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                : <GithubIcon className="mr-2 h-4 w-4" />}
               Continue with GitHub
             </Button>
 
-            <Button variant="outline" className="w-full h-11 rounded-xl">
-              <GoogleIcon />
+            <Button
+              variant="outline"
+              className="w-full h-11 rounded-xl"
+              disabled={oauthPending}
+              onClick={() => googleAuth.mutate()}
+            >
+              {googleAuth.isPending
+                ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                : <GoogleIcon />}
               Continue with Google
             </Button>
           </div>
@@ -92,24 +108,14 @@ export default function LoginPage() {
               )}
             </div>
 
-            {createMagicLink.isError && (
-              <p className="text-xs text-destructive px-1">
-                Something went wrong. Please try again.
-              </p>
-            )}
-
-            {createMagicLink.isSuccess && (
-              <p className="text-xs text-green-500 px-1">
-                Magic link sent! Check your inbox.
-              </p>
-            )}
-
             <Button
               type="submit"
               className="w-full h-11 rounded-xl"
               disabled={createMagicLink.isPending}
             >
-              <Mail className="mr-2 h-4 w-4" />
+              {createMagicLink.isPending
+                ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                : <Mail className="mr-2 h-4 w-4" />}
               {createMagicLink.isPending ? "Sending…" : "Send Magic Link"}
             </Button>
           </form>

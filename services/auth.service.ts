@@ -1,19 +1,32 @@
-import { MagicLinkUrlParams } from "@/models/auth";
-import { apiClient } from "@/lib/api-client";
+import { MagicLinkUrlParams } from "@/models/auth"
 
-class AuthService {
+const BASE = "/api/v1"
 
-    async magicLinkLogin(params: MagicLinkUrlParams) {
-        return await apiClient('/auth', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(params),
-        })
+async function post<T>(path: string, body: object): Promise<T> {
+    const res = await fetch(`${BASE}${path}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+    })
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw { status: res.status, message: err?.message ?? res.statusText }
     }
-
+    return res.json()
 }
 
+class AuthService {
+    async magicLinkLogin(params: MagicLinkUrlParams) {
+        return post("/auth", { ...params, intent: "createMagicLink" })
+    }
 
-export const authService = new AuthService();
+    async googleAuth(): Promise<{ data: { url: string } }> {
+        return post("/auth", { intent: "googleAuth" })
+    }
+
+    async githubAuth(): Promise<{ data: { url: string } }> {
+        return post("/auth", { intent: "githubAuth" })
+    }
+}
+
+export const authService = new AuthService()
