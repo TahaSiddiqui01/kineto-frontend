@@ -1,15 +1,16 @@
 import { MagicLinkUrlParams } from "@/models/auth";
+import { apiClient } from "@/lib/api-client";
 
 class AuthService {
 
     async magicLinkLogin(params: MagicLinkUrlParams) {
-        return fetch('/api/v1/auth', {
+        return await apiClient('/auth', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(params),
-        }).then(res => res.json())
+        })
     }
 
 }

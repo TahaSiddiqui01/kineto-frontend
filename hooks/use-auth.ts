@@ -11,6 +11,9 @@ export function useAuth() {
     const createMagicLink = useMutation({
         mutationFn: authService.magicLinkLogin,
         mutationKey: authKeys.magicLink(),
+        onError: (error) => {
+            console.error("Failed to create magic link:", error)
+        }
     })
 
     return {
