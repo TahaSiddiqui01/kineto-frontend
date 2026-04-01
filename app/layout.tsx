@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist_Mono, Roboto } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "@/components/providers/query-provider"
+import { AuthProvider } from "@/components/providers/auth-provider"
 import { Toaster } from "sonner"
 
 const geistMono = Geist_Mono({
@@ -34,7 +35,9 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <QueryProvider>
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
           <Toaster richColors position="top-right" />
         </QueryProvider>
       </body>
