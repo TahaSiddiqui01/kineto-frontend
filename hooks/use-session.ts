@@ -3,37 +3,43 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useAuthStore } from "@/store/auth.store"
 
-const WARN_MINUTES = 5   // Show dialog when ≤ 5 minutes remain
+const WARN_MINUTES = 5
+
+function computeMinutes(expiresAt: Date | null): number | null {
+    if (!expiresAt) return null
+    return Math.max(0, Math.floor((expiresAt.getTime() - Date.now()) / 60_000))
+}
 
 export function useSession() {
     const sessionExpiresAt = useAuthStore((s) => s.sessionExpiresAt)
     const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
-    const [minutesUntilExpiry, setMinutesUntilExpiry] = useState<number | null>(null)
-    const [showExpiryWarning, setShowExpiryWarning] = useState(false)
+    // A tick counter is the only state — incrementing it causes a re-render
+    // so useMemo can recompute derived values without setState inside an effect.
+    const [tick, setTick] = useState(0)
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
     useEffect(() => {
-        if (!sessionExpiresAt || !isAuthenticated) {
-            setMinutesUntilExpiry(null)
-            setShowExpiryWarning(false)
-            if (intervalRef.current) clearInterval(intervalRef.current)
-            return
-        }
+        if (intervalRef.current) clearInterval(intervalRef.current)
 
-        const update = () => {
-            const diffMs = sessionExpiresAt.getTime() - Date.now()
-            const mins = Math.max(0, Math.floor(diffMs / 60_000))
-            setMinutesUntilExpiry(mins)
-            setShowExpiryWarning(mins <= WARN_MINUTES && mins > 0)
-        }
+        if (!sessionExpiresAt || !isAuthenticated) return
 
-        update()
-        intervalRef.current = setInterval(update, 30_000) // re-check every 30 s
+        intervalRef.current = setInterval(() => setTick((t) => t + 1), 30_000)
 
         return () => {
             if (intervalRef.current) clearInterval(intervalRef.current)
         }
     }, [sessionExpiresAt, isAuthenticated])
+
+    const minutesUntilExpiry = useMemo(() => {
+        // tick is referenced so this recomputes on every interval tick
+        void tick
+        if (!isAuthenticated) return null
+        return computeMinutes(sessionExpiresAt)
+    }, [tick, sessionExpiresAt, isAuthenticated])
+
+    const showExpiryWarning = minutesUntilExpiry !== null
+        && minutesUntilExpiry <= WARN_MINUTES
+        && minutesUntilExpiry > 0
 
     const expiryLabel = useMemo(() => {
         if (minutesUntilExpiry === null) return null

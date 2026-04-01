@@ -2,6 +2,10 @@
 
 import { useState } from "react"
 import { z } from "zod"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { XIcon } from "lucide-react"
 
 interface InviteStepProps {
     onNext: (emails: string[]) => void
@@ -39,69 +43,55 @@ export function InviteStep({ onNext, onSkip, isSubmitting }: InviteStepProps) {
     return (
         <div className="space-y-6">
             <div>
-                <h2 className="text-2xl font-bold text-gray-900">Invite your team</h2>
-                <p className="mt-1 text-sm text-gray-500">
-                    You can always invite people later from the workspace settings.
+                <h2 className="text-2xl font-bold text-foreground">Invite your team</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                    You can always invite people later from workspace settings.
                 </p>
             </div>
 
-            <div>
+            <div className="space-y-1.5">
                 <div className="flex gap-2">
-                    <input
+                    <Input
                         type="email"
                         value={input}
                         onChange={(e) => { setInput(e.target.value); setError(null) }}
                         onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addEmail())}
                         placeholder="colleague@company.com"
-                        className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        aria-invalid={!!error}
+                        className="flex-1"
                     />
-                    <button
-                        type="button"
-                        onClick={addEmail}
-                        className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
-                    >
+                    <Button type="button" variant="outline" onClick={addEmail}>
                         Add
-                    </button>
+                    </Button>
                 </div>
-                {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+                {error && <p className="text-xs text-destructive">{error}</p>}
             </div>
 
             {emails.length > 0 && (
-                <ul className="space-y-2">
+                <div className="flex flex-wrap gap-2">
                     {emails.map((email) => (
-                        <li
-                            key={email}
-                            className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm"
-                        >
-                            <span className="text-gray-700">{email}</span>
+                        <Badge key={email} variant="secondary" className="gap-1.5 pr-1.5">
+                            {email}
                             <button
                                 type="button"
                                 onClick={() => removeEmail(email)}
                                 aria-label={`Remove ${email}`}
-                                className="text-gray-400 hover:text-red-500"
+                                className="rounded-sm opacity-60 hover:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                             >
-                                ✕
+                                <XIcon className="size-3" />
                             </button>
-                        </li>
+                        </Badge>
                     ))}
-                </ul>
+                </div>
             )}
 
             <div className="flex gap-3">
-                <button
-                    onClick={() => onNext(emails)}
-                    disabled={isSubmitting}
-                    className="flex-1 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
-                >
+                <Button onClick={() => onNext(emails)} disabled={isSubmitting} className="flex-1">
                     {isSubmitting ? "Setting up…" : emails.length > 0 ? "Send invites & finish" : "Finish"}
-                </button>
-                <button
-                    onClick={onSkip}
-                    disabled={isSubmitting}
-                    className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50"
-                >
+                </Button>
+                <Button variant="outline" onClick={onSkip} disabled={isSubmitting}>
                     Skip
-                </button>
+                </Button>
             </div>
         </div>
     )

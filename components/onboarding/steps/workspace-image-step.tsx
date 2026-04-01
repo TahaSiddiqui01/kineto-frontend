@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from "react"
 import { workspaceService } from "@/services/workspace.service"
 import { toast } from "sonner"
+import { Button } from "@/components/ui/button"
 
 export interface WorkspaceImageValues {
     logoUrl: string | null
@@ -32,7 +33,6 @@ export function WorkspaceImageStep({ onNext, onSkip }: WorkspaceImageStepProps) 
             return
         }
 
-        // Show local preview immediately
         setPreview(URL.createObjectURL(file))
         setUploading(true)
 
@@ -62,8 +62,8 @@ export function WorkspaceImageStep({ onNext, onSkip }: WorkspaceImageStepProps) 
     return (
         <div className="space-y-6">
             <div>
-                <h2 className="text-2xl font-bold text-gray-900">Add a workspace logo</h2>
-                <p className="mt-1 text-sm text-gray-500">
+                <h2 className="text-2xl font-bold text-foreground">Add a workspace logo</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
                     Optional — you can add or change it later in settings.
                 </p>
             </div>
@@ -79,7 +79,9 @@ export function WorkspaceImageStep({ onNext, onSkip }: WorkspaceImageStepProps) 
                 onDrop={onDrop}
                 className={[
                     "flex h-48 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed transition-colors",
-                    isDragging ? "border-indigo-500 bg-indigo-50" : "border-gray-300 bg-gray-50 hover:bg-gray-100",
+                    isDragging
+                        ? "border-primary bg-primary/5"
+                        : "border-border bg-muted/40 hover:bg-muted/60",
                 ].join(" ")}
             >
                 {preview ? (
@@ -91,10 +93,12 @@ export function WorkspaceImageStep({ onNext, onSkip }: WorkspaceImageStepProps) 
                     />
                 ) : (
                     <div className="text-center">
-                        <p className="text-sm font-medium text-gray-600">
+                        <p className="text-sm font-medium text-muted-foreground">
                             {uploading ? "Uploading…" : "Drag & drop or click to upload"}
                         </p>
-                        <p className="mt-1 text-xs text-gray-400">PNG, JPG, WebP, SVG · max 5 MB</p>
+                        <p className="mt-1 text-xs text-muted-foreground/60">
+                            PNG, JPG, WebP, SVG · max 5 MB
+                        </p>
                     </div>
                 )}
             </div>
@@ -111,19 +115,16 @@ export function WorkspaceImageStep({ onNext, onSkip }: WorkspaceImageStepProps) 
             />
 
             <div className="flex gap-3">
-                <button
+                <Button
                     onClick={() => onNext(uploadedRef.current)}
                     disabled={uploading}
-                    className="flex-1 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+                    className="flex-1"
                 >
                     Continue
-                </button>
-                <button
-                    onClick={onSkip}
-                    className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50"
-                >
+                </Button>
+                <Button variant="outline" onClick={onSkip}>
                     Skip
-                </button>
+                </Button>
             </div>
         </div>
     )

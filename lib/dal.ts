@@ -7,7 +7,6 @@ import "server-only"
 
 import { cookies } from "next/headers"
 import { cache } from "react"
-import { createServerClient } from "@/lib/app-write-server-client"
 import { Account, Client } from "node-appwrite"
 import type { AuthUser } from "@/types/auth"
 
@@ -53,11 +52,6 @@ export const getSessionExpiry = cache(async (): Promise<Date | null> => {
     if (!sessionSecret) return null
 
     try {
-        const client = createServerClient()
-        const account = new Account(client)
-        // getSession with "current" requires a session-authenticated client;
-        // use the admin client to fetch session by searching — simplified:
-        // We read expiry from the session-authenticated client instead.
         const sessionClient = createSessionClient(sessionSecret)
         const sessionAccount = new Account(sessionClient)
         const session = await sessionAccount.getSession("current")

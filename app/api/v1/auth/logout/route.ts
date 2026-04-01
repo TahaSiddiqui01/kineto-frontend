@@ -1,5 +1,3 @@
-import { getAuthUser } from "@/lib/dal"
-import { createServerClient } from "@/lib/app-write-server-client"
 import { Account, Client } from "node-appwrite"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
