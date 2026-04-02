@@ -1,4 +1,5 @@
-import { MagicLinkUrlParams } from "@/models/auth"
+import { MagicLinkUrlParams } from "@/types/auth"
+
 
 const BASE = "/api/v1"
 
