@@ -1,4 +1,4 @@
-import { BaseRoute } from "@/models/routes.client";
+import { BaseRoute } from "@/types/routes/routes.client";
 
 export function buildRoute(route: BaseRoute): string {
     const { path, queryParams, params } = route;

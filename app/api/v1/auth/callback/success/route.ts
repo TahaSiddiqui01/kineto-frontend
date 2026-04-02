@@ -19,7 +19,7 @@ export async function GET(req: Request) {
         return NextResponse.redirect(new URL("/login?error=session_failed", req.url))
     }
 
-    const response = NextResponse.redirect(new URL("/dashboard", req.url))
+    const response = NextResponse.redirect(new URL("/workspace", req.url))
 
     response.cookies.set(SESSION_COOKIE, data.secret, {
         httpOnly: true,

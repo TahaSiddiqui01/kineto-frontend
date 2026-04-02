@@ -4,7 +4,7 @@ const PROJECT_ID = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!
 const SESSION_COOKIE = `a_session_${PROJECT_ID}`
 
 /** Routes that do NOT require authentication. */
-const PUBLIC_ROUTES = ["/login", "/"]
+const PUBLIC_ROUTES = ["/login"]
 
 /** Routes accessible only when NOT authenticated. */
 const AUTH_ONLY_ROUTES = ["/login"]

@@ -182,7 +182,7 @@ Set the OAuth redirect URL to:
 ```
 app/
   (auth)/login/          # Login page
-  (dashboard)/           # Protected routes (server-side auth check in layout.tsx)
+  (workspace)/           # Protected routes (server-side auth check in layout.tsx)
   (onboarding)/          # Onboarding wizard
   api/v1/                # All API route handlers
 proxy.ts                 # Next.js 16 route protection (replaces middleware.ts)

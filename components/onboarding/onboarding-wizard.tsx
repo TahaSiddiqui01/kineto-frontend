@@ -72,7 +72,7 @@ export function OnboardingWizard() {
             toast.success("Workspace created!", {
                 description: `Welcome to ${workspace.name}.`,
             })
-            router.replace("/dashboard")
+            router.replace("/workspace")
         } catch {
             toast.error("Failed to create workspace", {
                 description: "Please try again.",

@@ -16,7 +16,7 @@ export interface ClientRout extends BaseRoute {
 
 
 export const routes: Record<string, Record<string, () => string>> = {
-    "dashboard": {
-        "home": () => buildRoute({ path: "/dashboard/home" }),
+    "workspace": {
+        "home": () => buildRoute({ path: "/workspace/home" }),
     }
 }

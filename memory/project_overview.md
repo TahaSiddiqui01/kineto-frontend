@@ -29,7 +29,7 @@ Next.js 16.2.1 app (App Router). Middleware is called `proxy.ts` not `middleware
 - Session expiry warning at ≤5 minutes via `components/auth/session-expiry-dialog.tsx`
 - RBAC: `types/rbac/index.ts` has permissions map; `components/guards/rbac-guard.tsx` for UI
 - Onboarding wizard at `components/onboarding/onboarding-wizard.tsx` (5 steps)
-- Dashboard layout at `app/(dashboard)/layout.tsx` does server-side auth + workspace check
+- Dashboard layout at `app/(workspace)/layout.tsx` does server-side auth + workspace check
 
 ## Required env vars (new)
 - APPWRITE_DATABASE_ID

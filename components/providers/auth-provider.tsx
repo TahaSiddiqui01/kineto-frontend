@@ -55,7 +55,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
             // 2. If authenticated on a public route, redirect to dashboard
             if (isPublic && !pathname.startsWith("/onboarding")) {
-                router.replace("/dashboard")
+                router.replace("/workspace")
                 setLoading(false)
                 return
             }
