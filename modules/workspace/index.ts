@@ -38,18 +38,15 @@ class WorkspaceModule {
         const supabase = this.db()
         const { data: memberships, error: memError } = await supabase
             .from("workspace_members")
-            .select("workspace_id")
-            .eq("user_id", userId)
+            .select(`
+                    workspace_id,
+                    role,
+                    workspaces!workspace_members_workspace_id_fkey(*)
+                `)
+            .eq("user_id", userId);
 
         if (memError || !memberships || memberships.length === 0) return []
-
-        const workspaceIds = memberships.map((m) => m.workspace_id as string)
-        const { data: workspaces } = await supabase
-            .from("workspaces")
-            .select("*")
-            .in("id", workspaceIds)
-
-        return (workspaces ?? []) as unknown as Workspace[]
+        return (memberships ?? []) as unknown as Workspace[]
     }
 
     async getMembershipByUserId(userId: string, workspaceId: string): Promise<WorkspaceMember | null> {

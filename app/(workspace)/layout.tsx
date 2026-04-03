@@ -19,7 +19,7 @@ export default async function DashboardLayout({
     }
 
     const workspaces = await workspaceModule.getWorkspacesByUserId(user.id)
-
+    
     if (workspaces.length === 0) {
         redirect("/onboarding")
     }

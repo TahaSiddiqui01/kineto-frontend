@@ -1,8 +1,10 @@
-import React from 'react'
+import WorkspacesPage from '@/screens/workspace'
 
 function page() {
   return (
-    <div>This is the workspace page</div>
+    <>
+      <WorkspacesPage />
+    </>
   )
 }
 

@@ -1,6 +1,7 @@
 import { getAuthUser } from "@/lib/dal"
 import { workspaceModule } from "@/modules/workspace"
 import { NextRequest, NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { z } from "zod"
 
 const createWorkspaceSchema = z.object({
@@ -45,5 +46,6 @@ export async function POST(req: NextRequest) {
         logoFileId: parsed.data.logoFileId ?? null,
     })
 
+    revalidatePath("/workspace")
     return NextResponse.json({ data: workspace }, { status: 201 })
 }
