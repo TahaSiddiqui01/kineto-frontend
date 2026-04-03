@@ -8,10 +8,14 @@ import WorkspaceLoadingSkeleton from "@/components/workspace/workspace-loading-s
 import { CreateWorkspaceDialog } from "@/components/workspace/create-workspace-dialog"
 import { useWorkspaces } from "@/hooks/use-workspace"
 import { Plus } from "lucide-react"
+import { Workspace, WorkspaceMember } from "@/types/workspace"
 
 export default function WorkspacesPage() {
   const { workspaces, isLoading } = useWorkspaces()
   const [dialogOpen, setDialogOpen] = useState(false)
+
+  console.log("Workspaces:", workspaces)
+
 
   return (
     <div className="max-w-12xl mx-auto py-10 px-6">
@@ -35,7 +39,7 @@ export default function WorkspacesPage() {
         <WorkspaceLoadingSkeleton />
       ) : workspaces.length ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {workspaces.map((wm: any) => (
+          {workspaces.map((wm: WorkspaceMember) => (
             <WorkspaceCard key={wm.workspaces.id} {...wm.workspaces} role={wm.role} />
           ))}
         </div>

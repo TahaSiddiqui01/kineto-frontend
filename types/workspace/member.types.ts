@@ -1,4 +1,5 @@
 export type WorkspaceRole = "owner" | "admin" | "member"
+import { Workspace } from "./workspace.types"
 
 export const WORKSPACE_ROLE_LABELS: Record<WorkspaceRole, string> = {
     owner: "Owner",
@@ -6,17 +7,20 @@ export const WORKSPACE_ROLE_LABELS: Record<WorkspaceRole, string> = {
     member: "Member",
 }
 
+
+export type InvitationStatus = "pending" | "accepted" | "declined" | "expired"
+
+
 export interface WorkspaceMember {
     id: string
     created_at: string
     workspace_id: string
     user_id: string
-    role: WorkspaceRole
+    role: "owner" | "admin" | "member"
     user_email: string
     user_name: string
+    workspaces: Workspace
 }
-
-export type InvitationStatus = "pending" | "accepted" | "declined" | "expired"
 
 export interface WorkspaceInvitation {
     id: string

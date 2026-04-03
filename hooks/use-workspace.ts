@@ -8,6 +8,8 @@ export const workspaceKeys = {
     lists: () => [...workspaceKeys.all, "list"] as const,
 }
 
+
+// returns the list of members and correspongind workspace
 export function useWorkspaces() {
     const { data, isLoading } = useQuery({
         queryFn: workspaceService.getMyWorkspaces,

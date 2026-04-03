@@ -1,4 +1,4 @@
-import type { CreateWorkspacePayload, Workspace, WorkspaceInvitation } from "@/types/workspace"
+import type { CreateWorkspacePayload, Workspace, WorkspaceInvitation, WorkspaceMember } from "@/types/workspace"
 import type { WorkspacePurpose, ReferralSource } from "@/types/auth"
 
 const BASE = "/api/v1"
@@ -23,7 +23,7 @@ export interface OnboardingPayload {
 }
 
 class WorkspaceService {
-    async getMyWorkspaces(): Promise<{ data: Workspace[] }> {
+    async getMyWorkspaces(): Promise<{ data: WorkspaceMember[] }> {
         return request("/workspace")
     }
 
