@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { routes } from "@/types/routes/routes.client"
 import { workspaceService } from "@/services/workspace.service"
 import { userService } from "@/services/user.service"
 import { useAuthStore } from "@/store/auth.store"
@@ -72,7 +73,7 @@ export function OnboardingWizard() {
             toast.success("Workspace created!", {
                 description: `Welcome to ${workspace.name}.`,
             })
-            router.replace("/workspace")
+            router.replace(routes.workspace.home())
         } catch {
             toast.error("Failed to create workspace", {
                 description: "Please try again.",

@@ -6,8 +6,9 @@ import { userService } from "@/services/user.service"
 import { workspaceService } from "@/services/workspace.service"
 import { useAuthStore } from "@/store/auth.store"
 import { SessionExpiryDialog } from "@/components/auth/session-expiry-dialog"
+import { routes } from "@/types/routes/routes.client"
 
-const PUBLIC_PATHS = ["/login", "/"]
+const PUBLIC_PATHS = [routes.auth.login(), "/"]
 
 interface AuthProviderProps {
     children: React.ReactNode
@@ -44,18 +45,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
             setSessionExpiresAt(sessionExpiresAt ? new Date(sessionExpiresAt) : null)
 
             const isPublic = PUBLIC_PATHS.some(
-                (p) => pathname === p || pathname.startsWith("/login")
+                (p) => pathname === p || pathname.startsWith(routes.auth.login())
             )
 
             if (!user) {
                 setLoading(false)
-                if (!isPublic) router.replace("/login")
+                if (!isPublic) router.replace(routes.auth.login())
                 return
             }
 
             // 2. If authenticated on a public route, redirect to dashboard
-            if (isPublic && !pathname.startsWith("/onboarding")) {
-                router.replace("/workspace")
+            if (isPublic && !pathname.startsWith(routes.auth.onboarding())) {
+                router.replace(routes.workspace.home())
                 setLoading(false)
                 return
             }
@@ -67,7 +68,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
             if (cancelled) return
 
-            if (workspaces.length === 0 && !pathname.startsWith("/onboarding")) {
+            if (workspaces.length === 0 && !pathname.startsWith(routes.auth.onboarding())) {
                 // Check for pending invitations first
                 const { data: invitations } = await workspaceService
                     .getPendingInvitations()
@@ -76,7 +77,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 if (cancelled) return
 
                 if (invitations.length === 0) {
-                    router.replace("/onboarding")
+                    router.replace(routes.auth.onboarding())
                     setLoading(false)
                     return
                 }

@@ -14,6 +14,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { routes } from "@/types/routes/routes.client"
 
 export function SessionExpiryDialog() {
     const { showExpiryWarning, expiryLabel } = useSession()
@@ -25,7 +26,7 @@ export function SessionExpiryDialog() {
         setLoggingOut(true)
         await userService.logout().catch(() => null)
         reset()
-        router.replace("/login")
+        router.replace(routes.auth.login())
     }
 
     return (
@@ -42,7 +43,7 @@ export function SessionExpiryDialog() {
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => router.push("/login")}>
+                    <Button variant="outline" onClick={() => router.push(routes.auth.login())}>
                         Go to login
                     </Button>
                     <Button variant="destructive" onClick={handleLogout} disabled={loggingOut}>

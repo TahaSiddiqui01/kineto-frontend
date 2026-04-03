@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { ChevronRight, Building2 } from "lucide-react";
 import Link from "next/link";
+import { routes } from "@/types/routes/routes.client";
 
 interface WorkspaceCardProps {
   name: string;
@@ -10,6 +11,7 @@ interface WorkspaceCardProps {
   logoUrl?: string;
   plan: string;
   role: string;
+  workspaceId: string;
 }
 
 export const WorkspaceCard = ({
@@ -19,9 +21,10 @@ export const WorkspaceCard = ({
   logoUrl,
   plan,
   role,
+  workspaceId
 }: WorkspaceCardProps) => {
   return (
-    <Link href={`/dashboard/${slug}`} className="group block">
+    <Link href={routes.workspace.detail({ params: { id: workspaceId } })} className="group block">
       <div className="relative rounded-xl border bg-background p-5 transition-all duration-200 hover:shadow-lg hover:-translate-y-1 hover:border-primary/40 min-w-62.5">
         
         {/* Top Row */}

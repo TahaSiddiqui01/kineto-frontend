@@ -1,7 +1,9 @@
-function page() {
+import React from 'react'
+
+function pages() {
   return (
-    <div>This is the workspace details page</div>
+    <div>THis is the workspace details, I will let the user to create the bot and folders here</div>
   )
 }
 
-export default page
+export default pages

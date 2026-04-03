@@ -40,7 +40,7 @@ export default function WorkspacesPage() {
       ) : workspaces.length ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {workspaces.map((wm: WorkspaceMember) => (
-            <WorkspaceCard key={wm.workspaces.id} {...wm.workspaces} role={wm.role} />
+            <WorkspaceCard key={wm.workspaces.id} {...wm.workspaces} role={wm.role} workspaceId={wm.workspace_id} />
           ))}
         </div>
       ) : (

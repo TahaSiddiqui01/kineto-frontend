@@ -15,8 +15,18 @@ export interface ClientRout extends BaseRoute {
 }
 
 
-export const routes: Record<string, Record<string, () => string>> = {
+export const routes: Record<string, Record<string, (route?: Partial<BaseRoute>) => string>> = {
+    "auth": {
+        "login": () => buildRoute({ path: "/login" }),
+        "onboarding": () => buildRoute({ path: "/onboarding" }),
+    },
     "workspace": {
-        "home": () => buildRoute({ path: "/workspace/home" }),
+        "home": () => buildRoute({ path: "/workspace" }),
+        "detail": (route?: Partial<BaseRoute>) => buildRoute({ path: "/workspace/:id", params: route?.params }),
+        "bots": (route?: Partial<BaseRoute>) => buildRoute({ path: "/workspace/:id/bots", params: route?.params }),
+    },
+    "bots": {
+        "home": () => buildRoute({ path: "/bots" }),
+        "detail": (route?: Partial<BaseRoute>) => buildRoute({ path: "/bots/:id", params: route?.params }),
     }
 }
