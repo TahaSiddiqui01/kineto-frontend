@@ -124,6 +124,34 @@ CREATE INDEX ON workspace_members (user_id);
 CREATE INDEX ON workspace_members (workspace_id);
 CREATE INDEX ON workspace_invitations (email, status);
 
+-- Folders (organise bots within a workspace)
+CREATE TABLE folders (
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    workspace_id  UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+    name          TEXT NOT NULL,
+    created_by    UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE
+);
+
+-- Bots (can optionally belong to a folder)
+CREATE TABLE bots (
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    workspace_id  UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+    folder_id     UUID REFERENCES folders(id) ON DELETE SET NULL,
+    name          TEXT NOT NULL,
+    description   TEXT,
+    status        TEXT NOT NULL DEFAULT 'inactive' CHECK (status IN ('active', 'inactive')),
+    created_by    UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE
+);
+
+-- Indexes
+CREATE INDEX ON folders (workspace_id);
+CREATE INDEX ON bots (workspace_id);
+CREATE INDEX ON bots (folder_id);
+
 -- Auto-update updated_at on workspaces
 CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER AS $$
@@ -135,6 +163,14 @@ $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER workspaces_updated_at
     BEFORE UPDATE ON workspaces
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER folders_updated_at
+    BEFORE UPDATE ON folders
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER bots_updated_at
+    BEFORE UPDATE ON bots
     FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 ```
 
@@ -202,15 +238,19 @@ components/
   providers/             # AuthProvider, QueryProvider
 hooks/
   use-auth.ts            # Auth mutations (magic link, Google, GitHub)
+  use-bots.ts            # Bot and folder CRUD mutations + queries
   use-session.ts         # Session expiry countdown
+  use-workspace.ts       # Workspace list query + create mutation
 lib/
   dal.ts                 # Data access layer — session verification (server-only)
   supabase-server-client.ts  # SSR client (cookie-aware) + admin client factories
 modules/
   auth/                  # Supabase auth operations (server-side)
+  bot/                   # Supabase folder and bot CRUD operations (server-side)
   workspace/             # Supabase workspace/member/invitation operations (server-side)
 services/
   auth.service.ts        # Client-side auth API calls
+  bot.service.ts         # Client-side folder and bot API calls
   user.service.ts        # Client-side user API calls
   workspace.service.ts   # Client-side workspace API calls
 store/

@@ -1,9 +1,16 @@
-import React from 'react'
+import { notFound } from "next/navigation"
+import { workspaceModule } from "@/modules/workspace"
+import WorkspaceDetailScreen from "@/screens/workspace/detail"
 
-function pages() {
-  return (
-    <div>THis is the workspace details, I will let the user to create the bot and folders here</div>
-  )
+interface PageProps {
+    params: Promise<{ id: string }>
 }
 
-export default pages
+export default async function WorkspaceDetailPage({ params }: PageProps) {
+    const { id } = await params
+    const workspace = await workspaceModule.getWorkspaceById(id)
+
+    if (!workspace) notFound()
+
+    return <WorkspaceDetailScreen workspaceId={id} workspaceName={workspace.name} />
+}
