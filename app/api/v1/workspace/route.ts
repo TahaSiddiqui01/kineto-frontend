@@ -20,7 +20,7 @@ export async function GET() {
     const user = await getAuthUser()
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-    const workspaces = await workspaceModule.getWorkspacesByUserId(user.$id)
+    const workspaces = await workspaceModule.getWorkspacesByUserId(user.id)
     return NextResponse.json({ data: workspaces })
 }
 
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
     }
 
-    const workspace = await workspaceModule.createWorkspace(user.$id, {
+    const workspace = await workspaceModule.createWorkspace(user.id, {
         name: parsed.data.name,
         industry: parsed.data.industry as never,
         logoUrl: parsed.data.logoUrl ?? null,

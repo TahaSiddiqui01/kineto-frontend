@@ -7,26 +7,26 @@ export const WORKSPACE_ROLE_LABELS: Record<WorkspaceRole, string> = {
 }
 
 export interface WorkspaceMember {
-    $id: string
-    $createdAt: string
-    workspaceId: string
-    userId: string
+    id: string
+    created_at: string
+    workspace_id: string
+    user_id: string
     role: WorkspaceRole
-    userEmail: string
-    userName: string
+    user_email: string
+    user_name: string
 }
 
 export type InvitationStatus = "pending" | "accepted" | "declined" | "expired"
 
 export interface WorkspaceInvitation {
-    $id: string
-    $createdAt: string
-    workspaceId: string
+    id: string
+    created_at: string
+    workspace_id: string
     email: string
     role: WorkspaceRole
     status: InvitationStatus
-    expiresAt: string
-    invitedBy: string
+    expires_at: string
+    invited_by: string
 }
 
 export interface InviteUserPayload {

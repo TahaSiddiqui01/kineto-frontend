@@ -1,40 +1,23 @@
 import { getAuthUser } from "@/lib/dal"
-import { cookies } from "next/headers"
-import { Account, Client } from "node-appwrite"
+import { createServerClient } from "@/lib/supabase-server-client"
 import { NextRequest, NextResponse } from "next/server"
 
-const PROJECT_ID = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!
-const SESSION_COOKIE = `a_session_${PROJECT_ID}`
-
-async function getSessionClient() {
-    const cookieStore = await cookies()
-    const sessionSecret = cookieStore.get(SESSION_COOKIE)?.value
-    if (!sessionSecret) return null
-    return new Client()
-        .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
-        .setProject(PROJECT_ID)
-        .setSession(sessionSecret)
-}
-
 /**
- * PATCH /api/v1/user/prefs
- * Merges the given fields into the user's AppWrite preferences.
+ * POST /api/v1/user/prefs
+ * Merges the given fields into the user's metadata.
  * Uses the session-authenticated client so the write is scoped to the user.
  */
 export async function POST(req: NextRequest) {
     const user = await getAuthUser()
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-    const client = await getSessionClient()
-    if (!client) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-
     const body = await req.json()
+    const supabase = await createServerClient()
 
-    const account = new Account(client)
+    const existing = user.user_metadata ?? {}
+    const { error } = await supabase.auth.updateUser({ data: { ...existing, ...body } })
 
-    // Merge with existing prefs so we don't overwrite unrelated fields
-    const existing = await account.getPrefs()
-    await account.updatePrefs({ ...existing, ...body })
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
     return NextResponse.json({ success: true })
 }

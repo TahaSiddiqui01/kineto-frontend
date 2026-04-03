@@ -65,7 +65,7 @@ export function OnboardingWizard() {
 
             if (inviteEmails.length > 0) {
                 await workspaceService
-                    .inviteMembers(workspace.$id, inviteEmails)
+                    .inviteMembers(workspace.id, inviteEmails)
                     .catch(() => toast.error("Some invitations could not be sent"))
             }
 

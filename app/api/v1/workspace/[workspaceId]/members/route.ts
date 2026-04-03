@@ -16,7 +16,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
     const user = await getAuthUser()
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-    const membership = await workspaceModule.getMembershipByUserId(user.$id, workspaceId)
+    const membership = await workspaceModule.getMembershipByUserId(user.id, workspaceId)
     if (!membership) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     if (!hasPermission(membership.role, "members:read")) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 })
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest, { params }: Params) {
     const user = await getAuthUser()
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-    const membership = await workspaceModule.getMembershipByUserId(user.$id, workspaceId)
+    const membership = await workspaceModule.getMembershipByUserId(user.id, workspaceId)
     if (!membership) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     if (!hasPermission(membership.role, "members:invite")) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 })
@@ -43,6 +43,6 @@ export async function POST(req: NextRequest, { params }: Params) {
         return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
     }
 
-    const invitation = await workspaceModule.inviteUser(workspaceId, user.$id, parsed.data)
+    const invitation = await workspaceModule.inviteUser(workspaceId, user.id, parsed.data)
     return NextResponse.json({ data: invitation }, { status: 201 })
 }

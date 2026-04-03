@@ -1,90 +1,49 @@
-import { createServerClient } from "@/lib/app-write-server-client"
-import { MagicLinkUrlParams } from "@/types/auth"
-import { Client, ID, Account, OAuthProvider } from "node-appwrite"
-import { Account as ServerAccount } from "node-appwrite"
+import { createServerClient } from "@/lib/supabase-server-client"
 
 class Authentication {
-
-    private appWriteClient: Client | null = null
-
-    constructor() {
-        this.appWriteClient = createServerClient()
-    }
-
-    async createMagicUrlToken(params: MagicLinkUrlParams) {
-        const account = new Account(this.appWriteClient!)
+    async createMagicUrlToken(params: { email: string; url: string }) {
         try {
-            const response = await account.createMagicURLToken({
-                userId: ID.unique(),
+            const supabase = await createServerClient()
+            const { data, error } = await supabase.auth.signInWithOtp({
                 email: params.email,
-                url: params.url,
-                phrase: params.phrase || false,
+                options: {
+                    emailRedirectTo: params.url,
+                },
             })
-            return {
-                data: response,
-                error: null
-            }
+            if (error) throw error
+            return { data, error: null }
         } catch (error) {
-            console.error("Error creating magic URL token:", error)
-            return {
-                error,
-                data: null
-            }
-        }
-    }
-
-    async createSession(userId: string, secret: string) {
-        const account = new ServerAccount(this.appWriteClient!)
-        try {
-            const response = await account.createSession({ userId, secret })
-            return {
-                data: response,
-                error: null
-            }
-        } catch (error) {
-            console.error("Error creating session:", error)
-            return {
-                error,
-                data: null
-            }
-        }
-    }
-
-
-    async getSession() {
-        const account = new ServerAccount(this.appWriteClient!)
-        try {
-            const response = await account.getSession({ sessionId: "current" });
-            return { data: response, error: null }
-        } catch (error) {
-            console.error("Error getting session:", error)
-            return {
-                error,
-                data: null
-            }
+            console.error("Error creating magic link:", error)
+            return { error, data: null }
         }
     }
 
     async googleAuth() {
-        const account = new ServerAccount(this.appWriteClient!)
-        return await account.createOAuth2Token({
-            provider: OAuthProvider.Google,
-            success: `${process.env.NEXT_PUBLIC_APP_URL}/api/v1/auth/callback/success`,
-            failure: `${process.env.NEXT_PUBLIC_APP_URL}/login?error=oauth_failed`,
-            scopes: ['openid', 'profile', 'email'],
+        const supabase = await createServerClient()
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: "google",
+            options: {
+                redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/api/v1/auth/callback/success`,
+                scopes: "openid profile email",
+                queryParams: { access_type: "offline", prompt: "consent" },
+            },
         })
+        if (error) throw error
+        return data.url
     }
 
     async githubAuth() {
-        const account = new ServerAccount(this.appWriteClient!)
-        return await account.createOAuth2Token({
-            provider: OAuthProvider.Github,
-            success: `${process.env.NEXT_PUBLIC_APP_URL}/api/v1/auth/callback/success`,
-            failure: `${process.env.NEXT_PUBLIC_APP_URL}/login?error=oauth_failed`,
-            scopes: ['read:user', 'user:email'],
+        const supabase = await createServerClient()
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: "github",
+            options: {
+                redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/api/v1/auth/callback/success`,
+                scopes: "read:user user:email",
+            },
         })
+        if (error) throw error
+        return data.url
     }
-
 }
 
 export const authentication = new Authentication()

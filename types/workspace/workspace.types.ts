@@ -26,15 +26,15 @@ export const WORKSPACE_INDUSTRY_LABELS: Record<WorkspaceIndustry, string> = {
 }
 
 export interface Workspace {
-    $id: string
-    $createdAt: string
-    $updatedAt: string
+    id: string
+    created_at: string
+    updated_at: string
     name: string
     slug: string
     industry: WorkspaceIndustry
-    logoUrl: string | null
-    logoFileId: string | null
-    createdBy: string
+    logo_url: string | null
+    logo_file_id: string | null
+    created_by: string
     plan: WorkspacePlan
 }
 

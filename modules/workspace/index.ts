@@ -1,17 +1,15 @@
 /**
- * Server-side workspace operations via AppWrite Databases + Storage.
+ * Server-side workspace operations via Supabase Databases + Storage.
  *
- * Required AppWrite setup:
- *  Database:   process.env.APPWRITE_DATABASE_ID
- *  Collections:
- *    - APPWRITE_WORKSPACES_COLLECTION_ID  (workspaces)
- *    - APPWRITE_MEMBERS_COLLECTION_ID     (workspace_members)
- *    - APPWRITE_INVITATIONS_COLLECTION_ID (workspace_invitations)
- *  Storage bucket: APPWRITE_WORKSPACE_BUCKET_ID
+ * Required Supabase setup:
+ *  Tables:
+ *    - workspaces
+ *    - workspace_members
+ *    - workspace_invitations
+ *  Storage bucket: SUPABASE_WORKSPACE_BUCKET_ID
  */
-import { createServerClient } from "@/lib/app-write-server-client"
-import { Databases, ID, Query, Storage } from "node-appwrite"
-import { InputFile } from "node-appwrite/file"
+import { createAdminClient } from "@/lib/supabase-server-client"
+import { v4 as uuidv4 } from "uuid"
 import type {
     CreateWorkspacePayload,
     InviteUserPayload,
@@ -21,11 +19,7 @@ import type {
     WorkspaceRole,
 } from "@/types/workspace"
 
-const DB_ID = process.env.APPWRITE_DATABASE_ID!
-const WS_COL = process.env.APPWRITE_WORKSPACES_COLLECTION_ID!
-const MEM_COL = process.env.APPWRITE_MEMBERS_COLLECTION_ID!
-const INV_COL = process.env.APPWRITE_INVITATIONS_COLLECTION_ID!
-const BUCKET_ID = process.env.APPWRITE_WORKSPACE_BUCKET_ID!
+const BUCKET_ID = process.env.SUPABASE_WORKSPACE_BUCKET_ID!
 
 function slugify(name: string) {
     return name
@@ -37,82 +31,79 @@ function slugify(name: string) {
 
 class WorkspaceModule {
     private db() {
-        return new Databases(createServerClient())
-    }
-
-    private storage() {
-        return new Storage(createServerClient())
+        return createAdminClient()
     }
 
     async getWorkspacesByUserId(userId: string): Promise<Workspace[]> {
-        const db = this.db()
-        const memberships = await db.listDocuments({
-            databaseId: DB_ID,
-            collectionId: MEM_COL,
-            queries: [Query.equal("userId", userId)],
-        })
-        if (memberships.total === 0) return []
+        const supabase = this.db()
+        const { data: memberships, error: memError } = await supabase
+            .from("workspace_members")
+            .select("workspace_id")
+            .eq("user_id", userId)
 
-        const workspaceIds = memberships.documents.map((m) => m.workspaceId as string)
-        const result = await db.listDocuments({
-            databaseId: DB_ID,
-            collectionId: WS_COL,
-            queries: [Query.equal("$id", workspaceIds)],
-        })
-        return result.documents as unknown as Workspace[]
+        if (memError || !memberships || memberships.length === 0) return []
+
+        const workspaceIds = memberships.map((m) => m.workspace_id as string)
+        const { data: workspaces } = await supabase
+            .from("workspaces")
+            .select("*")
+            .in("id", workspaceIds)
+
+        return (workspaces ?? []) as unknown as Workspace[]
     }
 
     async getMembershipByUserId(userId: string, workspaceId: string): Promise<WorkspaceMember | null> {
-        const result = await this.db().listDocuments({
-            databaseId: DB_ID,
-            collectionId: MEM_COL,
-            queries: [
-                Query.equal("userId", userId),
-                Query.equal("workspaceId", workspaceId),
-            ],
-        })
-        if (result.total === 0) return null
-        return result.documents[0] as unknown as WorkspaceMember
+        const { data } = await this.db()
+            .from("workspace_members")
+            .select("*")
+            .eq("user_id", userId)
+            .eq("workspace_id", workspaceId)
+            .single()
+
+        return data as unknown as WorkspaceMember | null
     }
 
     async getWorkspaceById(workspaceId: string): Promise<Workspace | null> {
-        try {
-            const doc = await this.db().getDocument({
-                databaseId: DB_ID,
-                collectionId: WS_COL,
-                documentId: workspaceId,
-            })
-            return doc as unknown as Workspace
-        } catch {
-            return null
-        }
+        const { data } = await this.db()
+            .from("workspaces")
+            .select("*")
+            .eq("id", workspaceId)
+            .single()
+
+        return data as unknown as Workspace | null
     }
 
     async getPendingInvitationsByEmail(email: string): Promise<WorkspaceInvitation[]> {
-        const result = await this.db().listDocuments({
-            databaseId: DB_ID,
-            collectionId: INV_COL,
-            queries: [
-                Query.equal("email", email),
-                Query.equal("status", "pending"),
-                Query.greaterThan("expiresAt", new Date().toISOString()),
-            ],
-        })
-        return result.documents as unknown as WorkspaceInvitation[]
+        const { data } = await this.db()
+            .from("workspace_invitations")
+            .select("*")
+            .eq("email", email)
+            .eq("status", "pending")
+            .gt("expires_at", new Date().toISOString())
+
+        return (data ?? []) as unknown as WorkspaceInvitation[]
     }
 
     async uploadWorkspaceLogo(
         file: Buffer,
-        fileName: string
+        fileName: string,
+        mimeType: string
     ): Promise<{ fileId: string; url: string }> {
-        const storage = this.storage()
-        const uploaded = await storage.createFile({
-            bucketId: BUCKET_ID,
-            fileId: ID.unique(),
-            file: InputFile.fromBuffer(file, fileName),
-        })
-        const url = `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/${BUCKET_ID}/files/${uploaded.$id}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`
-        return { fileId: uploaded.$id, url }
+        const supabase = this.db()
+        const fileId = uuidv4()
+        const filePath = `logos/${fileId}/${fileName}`
+
+        const { error } = await supabase.storage
+            .from(BUCKET_ID)
+            .upload(filePath, file, { contentType: mimeType, upsert: false })
+
+        if (error) throw error
+
+        const { data: urlData } = supabase.storage
+            .from(BUCKET_ID)
+            .getPublicUrl(filePath)
+
+        return { fileId, url: urlData.publicUrl }
     }
 
     async createWorkspace(
@@ -122,36 +113,33 @@ class WorkspaceModule {
             logoFileId?: string | null
         }
     ): Promise<Workspace> {
-        const db = this.db()
-        const workspaceId = ID.unique()
+        const supabase = this.db()
+        const workspaceId = uuidv4()
 
-        const workspace = await db.createDocument({
-            databaseId: DB_ID,
-            collectionId: WS_COL,
-            documentId: workspaceId,
-            data: {
+        const { data: workspace, error } = await supabase
+            .from("workspaces")
+            .insert({
+                id: workspaceId,
                 name: payload.name,
                 slug: slugify(payload.name),
                 industry: payload.industry,
-                logoUrl: payload.logoUrl ?? null,
-                logoFileId: payload.logoFileId ?? null,
-                createdBy: userId,
+                logo_url: payload.logoUrl ?? null,
+                logo_file_id: payload.logoFileId ?? null,
+                created_by: userId,
                 plan: "free",
-            },
-        })
+            })
+            .select()
+            .single()
 
-        // Create the owner membership
-        await db.createDocument({
-            databaseId: DB_ID,
-            collectionId: MEM_COL,
-            documentId: ID.unique(),
-            data: {
-                workspaceId: workspace.$id,
-                userId,
-                role: "owner" satisfies WorkspaceRole,
-                userEmail: "",
-                userName: "",
-            },
+        if (error) throw error
+
+        await supabase.from("workspace_members").insert({
+            id: uuidv4(),
+            workspace_id: workspace.id,
+            user_id: userId,
+            role: "owner" satisfies WorkspaceRole,
+            user_email: "",
+            user_name: "",
         })
 
         return workspace as unknown as Workspace
@@ -165,58 +153,59 @@ class WorkspaceModule {
         const expires = new Date()
         expires.setDate(expires.getDate() + 7)
 
-        const doc = await this.db().createDocument({
-            databaseId: DB_ID,
-            collectionId: INV_COL,
-            documentId: ID.unique(),
-            data: {
-                workspaceId,
+        const { data, error } = await this.db()
+            .from("workspace_invitations")
+            .insert({
+                id: uuidv4(),
+                workspace_id: workspaceId,
                 email: payload.email,
                 role: payload.role,
                 status: "pending",
-                expiresAt: expires.toISOString(),
-                invitedBy,
-            },
-        })
-        return doc as unknown as WorkspaceInvitation
+                expires_at: expires.toISOString(),
+                invited_by: invitedBy,
+            })
+            .select()
+            .single()
+
+        if (error) throw error
+        return data as unknown as WorkspaceInvitation
     }
 
     async acceptInvitation(invitationId: string, userId: string, userName: string): Promise<void> {
-        const db = this.db()
-        const inv = await db.getDocument({
-            databaseId: DB_ID,
-            collectionId: INV_COL,
-            documentId: invitationId,
-        })
-        if (!inv || inv.status !== "pending") throw new Error("Invitation not valid")
+        const supabase = this.db()
 
-        await db.updateDocument({
-            databaseId: DB_ID,
-            collectionId: INV_COL,
-            documentId: invitationId,
-            data: { status: "accepted" },
-        })
-        await db.createDocument({
-            databaseId: DB_ID,
-            collectionId: MEM_COL,
-            documentId: ID.unique(),
-            data: {
-                workspaceId: inv.workspaceId,
-                userId,
-                role: inv.role,
-                userEmail: inv.email,
-                userName,
-            },
+        const { data: inv, error: fetchError } = await supabase
+            .from("workspace_invitations")
+            .select("*")
+            .eq("id", invitationId)
+            .single()
+
+        if (fetchError || !inv || inv.status !== "pending") {
+            throw new Error("Invitation not valid")
+        }
+
+        await supabase
+            .from("workspace_invitations")
+            .update({ status: "accepted" })
+            .eq("id", invitationId)
+
+        await supabase.from("workspace_members").insert({
+            id: uuidv4(),
+            workspace_id: inv.workspace_id,
+            user_id: userId,
+            role: inv.role,
+            user_email: inv.email,
+            user_name: userName,
         })
     }
 
     async getWorkspaceMembers(workspaceId: string): Promise<WorkspaceMember[]> {
-        const result = await this.db().listDocuments({
-            databaseId: DB_ID,
-            collectionId: MEM_COL,
-            queries: [Query.equal("workspaceId", workspaceId)],
-        })
-        return result.documents as unknown as WorkspaceMember[]
+        const { data } = await this.db()
+            .from("workspace_members")
+            .select("*")
+            .eq("workspace_id", workspaceId)
+
+        return (data ?? []) as unknown as WorkspaceMember[]
     }
 }
 

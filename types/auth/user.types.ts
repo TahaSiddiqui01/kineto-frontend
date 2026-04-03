@@ -1,17 +1,14 @@
 export interface AuthUser {
-    $id: string
-    $createdAt: string
-    $updatedAt: string
-    name: string
+    id: string
     email: string
-    phone: string
-    emailVerification: boolean
-    phoneVerification: boolean
-    status: boolean
-    labels: string[]
-    prefs: Record<string, unknown>
-    accessedAt: string
-    registration: string
+    created_at: string
+    updated_at?: string
+    user_metadata: {
+        full_name?: string
+        name?: string
+        avatar_url?: string
+        [key: string]: unknown
+    }
 }
 
 export interface UserPreferences {

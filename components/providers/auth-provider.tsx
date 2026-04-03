@@ -89,7 +89,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 const members = await workspaceService
                     .getMyWorkspaces()
                     .then(() =>
-                        fetch(`/api/v1/workspace/${workspace.$id}/members`, {
+                        fetch(`/api/v1/workspace/${workspace.id}/members`, {
                             credentials: "same-origin",
                         }).then((r) => r.json())
                     )
@@ -97,7 +97,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
                 if (!cancelled && members.data) {
                     const myMembership = members.data.find(
-                        (m: { userId: string }) => m.userId === user.$id
+                        (m: { user_id: string }) => m.user_id === user.id
                     )
                     if (myMembership) setCurrentMembership(myMembership)
                 }

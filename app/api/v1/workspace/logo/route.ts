@@ -6,7 +6,7 @@ const MAX_SIZE_BYTES = 5 * 1024 * 1024 // 5 MB
 
 /**
  * POST /api/v1/workspace/logo
- * Uploads a workspace logo to AppWrite Storage (server-side).
+ * Uploads a workspace logo to Supabase Storage (server-side).
  * Accepts multipart/form-data with a "file" field.
  */
 export async function POST(req: NextRequest) {
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer())
-    const { fileId, url } = await workspaceModule.uploadWorkspaceLogo(buffer, file.name)
+    const { fileId, url } = await workspaceModule.uploadWorkspaceLogo(buffer, file.name, file.type)
 
     return NextResponse.json({ data: { fileId, url } }, { status: 201 })
 }
