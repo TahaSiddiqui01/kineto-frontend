@@ -26,7 +26,7 @@ export function SessionExpiryDialog() {
         setLoggingOut(true)
         await userService.logout().catch(() => null)
         reset()
-        router.replace(routes.auth.login())
+        router.push(routes.auth.login())
     }
 
     return (
@@ -43,11 +43,8 @@ export function SessionExpiryDialog() {
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => router.push(routes.auth.login())}>
-                        Go to login
-                    </Button>
                     <Button variant="destructive" onClick={handleLogout} disabled={loggingOut}>
-                        {loggingOut ? "Signing out…" : "Sign out now"}
+                        {loggingOut ? "Signing out…" : "Login again"}
                     </Button>
                 </DialogFooter>
             </DialogContent>
