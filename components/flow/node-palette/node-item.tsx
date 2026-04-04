@@ -59,19 +59,11 @@ export function NodeItem({ definition }: NodeItemProps) {
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      className="flex items-center gap-1.5 rounded-lg select-none cursor-grab active:cursor-grabbing transition-colors hover:bg-white/[0.06]"
-      style={{
-        background: '#1e1f22',
-        border: '1px solid #2e3033',
-        padding: '7px 10px',
-      }}
+      className="flex items-center gap-1.5 rounded-lg select-none cursor-grab active:cursor-grabbing transition-colors hover:bg-white/6 bg-[#1e1f22] border border-[#2e3033] px-2 py-2.5"
       title={definition.label}
     >
       <DynamicIcon name={definition.iconName} color={definition.color} />
-      <span
-        className="flex-1 truncate"
-        style={{ fontSize: 11.5, color: '#c8cace', lineHeight: '1' }}
-      >
+      <span className="flex-1 truncate text-sm text-[#c8cace]">
         {definition.label}
       </span>
       {definition.isPro && (

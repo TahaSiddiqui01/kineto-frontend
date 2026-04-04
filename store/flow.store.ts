@@ -52,6 +52,7 @@ interface FlowStore {
   addBlockToNode: (nodeId: string, blockType: BlockType) => void;
   removeBlockFromNode: (nodeId: string, blockId: string) => void;
   moveBlockBetweenNodes: (sourceNodeId: string, targetNodeId: string, blockId: string) => void;
+  reorderBlockInNode: (nodeId: string, blockId: string, targetIndex: number) => void;
   deleteNode: (nodeId: string) => void;
 
   // Selection
@@ -220,6 +221,30 @@ export const useFlowStore = create<FlowStore>()(
           }),
           false,
           'removeBlockFromNode'
+        );
+      },
+
+      reorderBlockInNode: (nodeId, blockId, targetIndex) => {
+        snapshot(set, get);
+        set(
+          (s) => ({
+            nodes: s.nodes.map((n) => {
+              if (n.id !== nodeId || n.type !== 'group') return n;
+              const gn = n as GroupFlowNode;
+              const blocks = [...gn.data.blocks];
+              const fromIndex = blocks.findIndex((b) => b.id === blockId);
+              if (fromIndex === -1) return n;
+              const [moved] = blocks.splice(fromIndex, 1);
+              const insertAt = Math.min(
+                targetIndex > fromIndex ? targetIndex - 1 : targetIndex,
+                blocks.length
+              );
+              blocks.splice(insertAt, 0, moved);
+              return { ...gn, data: { ...gn.data, blocks } };
+            }),
+          }),
+          false,
+          'reorderBlockInNode'
         );
       },
 

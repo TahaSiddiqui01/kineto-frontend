@@ -64,11 +64,14 @@ export function GroupNode({ id, data, selected }: NodeProps<GroupFlowNode>) {
     addBlockToNode,
     removeBlockFromNode,
     moveBlockBetweenNodes,
+    reorderBlockInNode,
     deleteNode,
     activeDragBlock,
   } = useFlowStore();
 
   const [isDragOver, setIsDragOver] = useState(false);
+  // null = no indicator; number = show line before blocks[number] (length = after last)
+  const [dropBeforeIndex, setDropBeforeIndex] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -109,6 +112,46 @@ export function GroupNode({ id, data, selected }: NodeProps<GroupFlowNode>) {
       }
     },
     [id, addBlockToNode, moveBlockBetweenNodes]
+  );
+
+  // ── Per-item reorder drag handlers ────────────────────────────────────────
+  const getDropIndex = (e: React.DragEvent, index: number) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    return e.clientY < rect.top + rect.height / 2 ? index : index + 1;
+  };
+
+  const handleItemDragOver = useCallback((e: React.DragEvent, index: number) => {
+    if (!e.dataTransfer.types.includes('application/flow-block-move')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setDropBeforeIndex(getDropIndex(e, index));
+  }, []);
+
+  const handleItemDragLeave = useCallback((e: React.DragEvent) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) setDropBeforeIndex(null);
+  }, []);
+
+  const handleItemDrop = useCallback(
+    (e: React.DragEvent, index: number) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragOver(false);
+      setDropBeforeIndex(null);
+
+      const moveData = e.dataTransfer.getData('application/flow-block-move');
+      if (!moveData) return;
+      const { blockId, sourceNodeId } = JSON.parse(moveData) as {
+        blockId: string;
+        sourceNodeId: string;
+      };
+      const targetIndex = getDropIndex(e, index);
+      if (sourceNodeId === id) {
+        reorderBlockInNode(id, blockId, targetIndex);
+      } else {
+        moveBlockBetweenNodes(sourceNodeId, id, blockId);
+      }
+    },
+    [id, reorderBlockInNode, moveBlockBetweenNodes]
   );
 
   const borderColor = selected ? '#f36b25' : isDragOver ? '#f36b25' : '#3a3b3e';
@@ -169,15 +212,40 @@ export function GroupNode({ id, data, selected }: NodeProps<GroupFlowNode>) {
         </div>
 
         {/* Blocks */}
-        <div className="flex flex-col gap-1.5 p-2">
+        <div className="flex flex-col p-2">
           {/* Existing blocks */}
-          {data.blocks.map((block) => (
-            <BlockItem
+          {data.blocks.map((block, index) => (
+            <div
               key={block.id}
-              block={block}
-              nodeId={id}
-              onRemove={(blockId) => removeBlockFromNode(id, blockId)}
-            />
+              onDragOver={(e) => handleItemDragOver(e, index)}
+              onDragLeave={handleItemDragLeave}
+              onDrop={(e) => handleItemDrop(e, index)}
+              style={{ marginBottom: index < data.blocks.length - 1 ? 6 : 0 }}
+            >
+              {/* Drop indicator line – before this block */}
+              <div style={{
+                height: 2,
+                borderRadius: 1,
+                marginBottom: 3,
+                background: dropBeforeIndex === index ? '#f36b25' : 'transparent',
+                transition: 'background 0.1s',
+              }} />
+              <BlockItem
+                block={block}
+                nodeId={id}
+                onRemove={(blockId) => removeBlockFromNode(id, blockId)}
+              />
+              {/* Drop indicator line – after last block */}
+              {index === data.blocks.length - 1 && (
+                <div style={{
+                  height: 2,
+                  borderRadius: 1,
+                  marginTop: 3,
+                  background: dropBeforeIndex === data.blocks.length ? '#f36b25' : 'transparent',
+                  transition: 'background 0.1s',
+                }} />
+              )}
+            </div>
           ))}
 
           {/* Empty state OR drop placeholder */}

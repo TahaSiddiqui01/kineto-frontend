@@ -191,6 +191,12 @@
   stroke-linecap: round;
 }
 
+/* Remove the default border ReactFlow adds to .react-flow__node-group wrappers */
+.react-flow__node-group {
+  border: none !important;
+  background: transparent !important;
+}
+
 /* Remove focus outline on nodes */
 .react-flow__node:focus,
 .react-flow__node:focus-visible {
