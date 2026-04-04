@@ -40,11 +40,6 @@ export function FlowNavbar({
     >
       {/* ── Left group ─────────────────────────────── */}
       <div className="flex items-center gap-0.5 flex-1 min-w-0">
-        {/* Back */}
-        <NavBtn onClick={() => router.back()} title="Go back">
-          <ChevronLeft size={16} />
-        </NavBtn>
-
         {/* Sidebar toggle */}
         <NavBtn
           onClick={onToggleSidebar}
@@ -54,11 +49,7 @@ export function FlowNavbar({
         </NavBtn>
 
         {/* Bot name */}
-        <div
-          className="flex items-center gap-1.5 mx-2 px-2 py-1 rounded-lg"
-          style={{ borderLeft: '1px solid #2a2b2d' }}
-        >
-          <LayoutTemplate size={14} style={{ color: '#6b7280' }} />
+        <div className="flex items-center gap-1.5 mx-2 px-2 py-1 rounded-lg">
           <span style={{ fontSize: 14, fontWeight: 600, color: '#e2e4e8' }}>{botName}</span>
         </div>
 
@@ -177,11 +168,10 @@ function NavBtn({ children, onClick, title, className = '', disabled = false }: 
       onClick={onClick}
       title={title}
       disabled={disabled}
-      className={`flex items-center justify-center rounded-lg p-1.5 transition-colors ${
-        disabled
+      className={`flex items-center justify-center rounded-lg p-1.5 transition-colors ${disabled
           ? 'opacity-25 cursor-not-allowed'
           : 'hover:bg-white/[0.06]'
-      } ${className}`}
+        } ${className}`}
       style={{ color: '#6b7280' }}
     >
       {children}
