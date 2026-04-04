@@ -128,3 +128,161 @@
     @apply font-sans;
   }
 }
+
+/* ── React Flow canvas overrides ─────────────────────────────────────────── */
+
+/* Controls panel wrapper */
+.react-flow__controls {
+  box-shadow: none !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+  background: #1a1b1d !important;
+  border: 1px solid #2a2b2d !important;
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 2px !important;
+  padding: 3px !important;
+}
+
+/* Each control button */
+.react-flow__controls-button {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: none !important;
+  width: 26px !important;
+  height: 26px !important;
+  padding: 0 !important;
+  border-radius: 6px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: background 0.15s !important;
+}
+
+.react-flow__controls-button:hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* SVG icons inside buttons – let them inherit color from the button */
+.react-flow__controls-button svg {
+  width: 12px !important;
+  height: 12px !important;
+  /* Do NOT set fill here – built-in icons use fill for the + / - shapes */
+  fill: #9ca3af !important;
+  stroke: none !important;
+}
+
+.react-flow__controls-button:hover svg {
+  fill: #e2e8f0 !important;
+}
+
+/* Handles */
+.react-flow__handle {
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.react-flow__handle:hover {
+  transform: scale(1.4) !important;
+  box-shadow: 0 0 0 3px rgba(243, 107, 37, 0.3) !important;
+}
+
+/* Edges */
+.react-flow__edge-path {
+  stroke-linecap: round;
+}
+
+/* Remove focus outline on nodes */
+.react-flow__node:focus,
+.react-flow__node:focus-visible {
+  outline: none !important;
+}
+
+/* Remove the default blue selection box React Flow adds */
+.react-flow__node.selected > div {
+  outline: none;
+}
+
+/* Custom control buttons that hold lucide icons (stroke-based) */
+.react-flow__controls-button.custom-ctrl svg {
+  fill: none !important;
+  stroke: #9ca3af !important;
+  stroke-width: 2;
+}
+
+.react-flow__controls-button.custom-ctrl:hover svg {
+  stroke: #e2e8f0 !important;
+}
+
+/* Group node delete button – hidden until the parent header is hovered */
+.react-flow__node:hover .node-delete-btn,
+.react-flow__node.selected .node-delete-btn {
+  opacity: 1 !important;
+}
+
+.node-delete-btn {
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.node-delete-btn:hover {
+  background: rgba(239, 68, 68, 0.18) !important;
+  opacity: 1 !important;
+}
+
+/* ── Sheet slide animations ──────────────────────────────────────────────── */
+
+@keyframes slideInFromRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes slideOutToRight {
+  from { transform: translateX(0);    opacity: 1; }
+  to   { transform: translateX(100%); opacity: 0; }
+}
+@keyframes slideInFromLeft {
+  from { transform: translateX(-100%); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+@keyframes slideOutToLeft {
+  from { transform: translateX(0);     opacity: 1; }
+  to   { transform: translateX(-100%); opacity: 0; }
+}
+
+[data-slot="sheet-content"][data-state="open"]  { animation: slideInFromRight  0.25s cubic-bezier(0.22,1,0.36,1) forwards; }
+[data-slot="sheet-content"][data-state="closed"] { animation: slideOutToRight 0.2s cubic-bezier(0.55,0,1,0.45) forwards; }
+
+/* ── Drop placeholder animations ─────────────────────────────────────────── */
+
+@keyframes dropSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scaleY(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@keyframes dropGlow {
+  0%, 100% {
+    background: rgba(243, 107, 37, 0.06);
+    border-color: rgba(243, 107, 37, 0.45);
+    box-shadow: none;
+  }
+  50% {
+    background: rgba(243, 107, 37, 0.13);
+    border-color: rgba(243, 107, 37, 0.9);
+    box-shadow: 0 0 8px rgba(243, 107, 37, 0.25);
+  }
+}
+
+.drop-placeholder {
+  border: 1.5px dashed rgba(243, 107, 37, 0.55);
+  padding: 9px 12px;
+  transform-origin: top center;
+  /* slide in once, then pulse forever */
+  animation:
+    dropSlideIn 0.14s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    dropGlow 1.4s ease-in-out 0.14s infinite;
+}

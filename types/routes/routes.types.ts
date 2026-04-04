@@ -1,4 +1,4 @@
-import { buildRoute } from "@/helpers/auth";
+import { buildRoute } from "@/helpers/route";
 
 export interface BaseRoute {
     path: string;

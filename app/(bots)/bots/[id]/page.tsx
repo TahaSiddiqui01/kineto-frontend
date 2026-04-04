@@ -1,8 +1,8 @@
-import React from 'react'
+import BotPage from '@/screens/bot'
 
 function page() {
   return (
-    <div>This is the bots detail page</div>
+    <BotPage />
   )
 }
 

@@ -1,8 +1,10 @@
 import React from 'react'
 
-function layout() {
+function layout(props: { children: React.ReactNode }) {
   return (
-    <div>layout</div>
+    <>
+      {props.children}
+    </>
   )
 }
 
