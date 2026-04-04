@@ -43,7 +43,7 @@ export function SessionExpiryDialog() {
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                    <Button variant="destructive" onClick={handleLogout} disabled={loggingOut}>
+                    <Button variant="default" onClick={handleLogout} disabled={loggingOut}>
                         {loggingOut ? "Signing out…" : "Login again"}
                     </Button>
                 </DialogFooter>
