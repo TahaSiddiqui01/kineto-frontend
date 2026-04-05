@@ -195,6 +195,7 @@
 .react-flow__node-group {
   border: none !important;
   background: transparent !important;
+  box-shadow: none !important;
 }
 
 /* Remove focus outline on nodes */

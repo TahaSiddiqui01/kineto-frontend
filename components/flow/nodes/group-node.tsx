@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import * as LucideIcons from 'lucide-react';
 import { Trash2 } from 'lucide-react';
+import { useShallow } from 'zustand/react/shallow';
 import { BlockItem } from './block-item';
 import { useFlowStore } from '@/store/flow.store';
 import type { ActiveDragBlock } from '@/store/flow.store';
@@ -58,21 +59,31 @@ function DropPlaceholder({ active }: { active: ActiveDragBlock | null }) {
 
 // ─── Main node ──────────────────────────────────────────────────────────────
 
-export function GroupNode({ id, data, selected }: NodeProps<GroupFlowNode>) {
+export const GroupNode = React.memo(
+  function GroupNode({ id, data, selected }: NodeProps<GroupFlowNode>) {
   const {
     updateNodeTitle,
     addBlockToNode,
-    removeBlockFromNode,
     moveBlockBetweenNodes,
     reorderBlockInNode,
     deleteNode,
     activeDragBlock,
-  } = useFlowStore();
+  } = useFlowStore(
+    useShallow((s) => ({
+      updateNodeTitle: s.updateNodeTitle,
+      addBlockToNode: s.addBlockToNode,
+      moveBlockBetweenNodes: s.moveBlockBetweenNodes,
+      reorderBlockInNode: s.reorderBlockInNode,
+      deleteNode: s.deleteNode,
+      activeDragBlock: s.activeDragBlock,
+    }))
+  );
 
   const [isDragOver, setIsDragOver] = useState(false);
   // null = no indicator; number = show line before blocks[number] (length = after last)
   const [dropBeforeIndex, setDropBeforeIndex] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const rafRef = useRef<number | null>(null);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     const has =
@@ -124,7 +135,12 @@ export function GroupNode({ id, data, selected }: NodeProps<GroupFlowNode>) {
     if (!e.dataTransfer.types.includes('application/flow-block-move')) return;
     e.preventDefault();
     e.stopPropagation();
-    setDropBeforeIndex(getDropIndex(e, index));
+    const newIndex = getDropIndex(e, index);
+    if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      setDropBeforeIndex(newIndex);
+      rafRef.current = null;
+    });
   }, []);
 
   const handleItemDragLeave = useCallback((e: React.DragEvent) => {
@@ -135,6 +151,10 @@ export function GroupNode({ id, data, selected }: NodeProps<GroupFlowNode>) {
     (e: React.DragEvent, index: number) => {
       e.preventDefault();
       e.stopPropagation();
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
       setIsDragOver(false);
       setDropBeforeIndex(null);
 
@@ -154,7 +174,18 @@ export function GroupNode({ id, data, selected }: NodeProps<GroupFlowNode>) {
     [id, reorderBlockInNode, moveBlockBetweenNodes]
   );
 
-  const borderColor = selected ? '#f36b25' : isDragOver ? '#f36b25' : '#3a3b3e';
+  const cardStyle = useMemo<React.CSSProperties>(
+    () => ({
+      background: '#252628',
+      border: `1.5px solid ${selected || isDragOver ? '#f36b25' : '#3a3b3e'}`,
+      boxShadow: selected
+        ? '0 0 0 3px rgba(243,107,37,0.18), 0 8px 32px rgba(0,0,0,0.55)'
+        : '0 4px 20px rgba(0,0,0,0.45)',
+      transition: 'border-color 0.12s, box-shadow 0.12s',
+      overflow: 'hidden',
+    }),
+    [selected, isDragOver]
+  );
 
   return (
     <div className="relative" style={{ width: 230 }}>
@@ -175,15 +206,7 @@ export function GroupNode({ id, data, selected }: NodeProps<GroupFlowNode>) {
       {/* Visual card */}
       <div
         className="rounded-xl"
-        style={{
-          background: '#252628',
-          border: `1.5px solid ${borderColor}`,
-          boxShadow: selected
-            ? '0 0 0 3px rgba(243,107,37,0.18), 0 8px 32px rgba(0,0,0,0.55)'
-            : '0 4px 20px rgba(0,0,0,0.45)',
-          transition: 'border-color 0.12s, box-shadow 0.12s',
-          overflow: 'hidden',
-        }}
+        style={cardStyle}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -233,7 +256,6 @@ export function GroupNode({ id, data, selected }: NodeProps<GroupFlowNode>) {
               <BlockItem
                 block={block}
                 nodeId={id}
-                onRemove={(blockId) => removeBlockFromNode(id, blockId)}
               />
               {/* Drop indicator line – after last block */}
               {index === data.blocks.length - 1 && (
@@ -283,4 +305,7 @@ export function GroupNode({ id, data, selected }: NodeProps<GroupFlowNode>) {
       />
     </div>
   );
-}
+},
+  (prev, next) =>
+    prev.id === next.id && prev.data === next.data && prev.selected === next.selected
+);

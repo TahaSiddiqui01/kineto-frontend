@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { X } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
+import { useShallow } from 'zustand/react/shallow';
 import { useFlowStore } from '@/store/flow.store';
 import { BLOCK_CONFIG_SCHEMAS_MAP } from '@/lib/flow/block-config-schemas';
 import { NodeManager } from '@/lib/flow/node-manager';
@@ -18,31 +19,47 @@ function DynamicIcon({ name, color }: { name: string; color: string }) {
 }
 
 export function BlockConfigPanel() {
-  const { nodes, selectedBlockId, selectedBlockNodeId, clearSelectedBlock, updateBlockContent } =
-    useFlowStore();
+  const { selectedBlockId, selectedBlockNodeId, clearSelectedBlock, updateBlockContent } =
+    useFlowStore(
+      useShallow((s) => ({
+        selectedBlockId: s.selectedBlockId,
+        selectedBlockNodeId: s.selectedBlockNodeId,
+        clearSelectedBlock: s.clearSelectedBlock,
+        updateBlockContent: s.updateBlockContent,
+      }))
+    );
+
+  // Focused selector — only re-renders when this specific block's data changes,
+  // not on every position update during drag.
+  const block = useFlowStore(
+    useCallback(
+      (s) => {
+        if (!selectedBlockId || !selectedBlockNodeId) return null;
+        const node = s.nodes.find((n) => n.id === selectedBlockNodeId) as GroupFlowNode | undefined;
+        if (!node || node.type !== 'group') return null;
+        return node.data.blocks.find((b) => b.id === selectedBlockId) ?? null;
+      },
+      [selectedBlockId, selectedBlockNodeId]
+    )
+  );
 
   const isOpen = !!selectedBlockId && !!selectedBlockNodeId;
 
-  const { block, schema, def } = useMemo(() => {
-    if (!selectedBlockId || !selectedBlockNodeId) return { block: null, schema: null, def: null };
-
-    const node = nodes.find((n) => n.id === selectedBlockNodeId) as GroupFlowNode | undefined;
-    if (!node || node.type !== 'group') return { block: null, schema: null, def: null };
-
-    const blk = node.data.blocks.find((b) => b.id === selectedBlockId);
-    if (!blk) return { block: null, schema: null, def: null };
-
+  const { schema, def } = useMemo(() => {
+    if (!block) return { schema: null, def: null };
     return {
-      block: blk,
-      schema: BLOCK_CONFIG_SCHEMAS_MAP.get(blk.type) ?? null,
-      def: NodeManager.getBlockDefinition(blk.type) ?? null,
+      schema: BLOCK_CONFIG_SCHEMAS_MAP.get(block.type) ?? null,
+      def: NodeManager.getBlockDefinition(block.type) ?? null,
     };
-  }, [nodes, selectedBlockId, selectedBlockNodeId]);
+  }, [block]);
 
-  const handleChange = (patch: Partial<BlockContent>) => {
-    if (!selectedBlockNodeId || !selectedBlockId) return;
-    updateBlockContent(selectedBlockNodeId, selectedBlockId, patch);
-  };
+  const handleChange = useCallback(
+    (patch: Partial<BlockContent>) => {
+      if (!selectedBlockNodeId || !selectedBlockId) return;
+      updateBlockContent(selectedBlockNodeId, selectedBlockId, patch);
+    },
+    [selectedBlockNodeId, selectedBlockId, updateBlockContent]
+  );
 
   return (
     <div
