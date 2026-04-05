@@ -65,9 +65,9 @@ export const GroupNode = React.memo(
     updateNodeTitle,
     addBlockToNode,
     moveBlockBetweenNodes,
+    reorderBlockInNode,
     deleteNode,
     activeDragBlock,
-    reorderBlockInNode,
   } = useFlowStore(
     useShallow((s) => ({
       updateNodeTitle: s.updateNodeTitle,
@@ -80,6 +80,8 @@ export const GroupNode = React.memo(
   );
 
   const [isDragOver, setIsDragOver] = useState(false);
+  // null = no indicator; number = show line before blocks[number] (length = after last)
+  const [dropBeforeIndex, setDropBeforeIndex] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const rafRef = useRef<number | null>(null);
 
@@ -123,7 +125,67 @@ export const GroupNode = React.memo(
     [id, addBlockToNode, moveBlockBetweenNodes]
   );
 
-  const borderColor = selected ? '#f36b25' : isDragOver ? '#f36b25' : '#3a3b3e';
+  // ── Per-item reorder drag handlers ────────────────────────────────────────
+  const getDropIndex = (e: React.DragEvent, index: number) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    return e.clientY < rect.top + rect.height / 2 ? index : index + 1;
+  };
+
+  const handleItemDragOver = useCallback((e: React.DragEvent, index: number) => {
+    if (!e.dataTransfer.types.includes('application/flow-block-move')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const newIndex = getDropIndex(e, index);
+    if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      setDropBeforeIndex(newIndex);
+      rafRef.current = null;
+    });
+  }, []);
+
+  const handleItemDragLeave = useCallback((e: React.DragEvent) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) setDropBeforeIndex(null);
+  }, []);
+
+  const handleItemDrop = useCallback(
+    (e: React.DragEvent, index: number) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      setIsDragOver(false);
+      setDropBeforeIndex(null);
+
+      const moveData = e.dataTransfer.getData('application/flow-block-move');
+      if (!moveData) return;
+      const { blockId, sourceNodeId } = JSON.parse(moveData) as {
+        blockId: string;
+        sourceNodeId: string;
+      };
+      const targetIndex = getDropIndex(e, index);
+      if (sourceNodeId === id) {
+        reorderBlockInNode(id, blockId, targetIndex);
+      } else {
+        moveBlockBetweenNodes(sourceNodeId, id, blockId);
+      }
+    },
+    [id, reorderBlockInNode, moveBlockBetweenNodes]
+  );
+
+  const cardStyle = useMemo<React.CSSProperties>(
+    () => ({
+      background: '#252628',
+      border: `1.5px solid ${selected || isDragOver ? '#f36b25' : '#3a3b3e'}`,
+      boxShadow: selected
+        ? '0 0 0 3px rgba(243,107,37,0.18), 0 8px 32px rgba(0,0,0,0.55)'
+        : '0 4px 20px rgba(0,0,0,0.45)',
+      transition: 'border-color 0.12s, box-shadow 0.12s',
+      overflow: 'hidden',
+    }),
+    [selected, isDragOver]
+  );
 
   return (
     <div className="relative" style={{ width: 230 }}>
@@ -173,15 +235,39 @@ export const GroupNode = React.memo(
         </div>
 
         {/* Blocks */}
-        <div className="flex flex-col gap-1.5 p-2">
+        <div className="flex flex-col p-2">
           {/* Existing blocks */}
-          {data.blocks.map((block) => (
-            <BlockItem
+          {data.blocks.map((block, index) => (
+            <div
               key={block.id}
-              block={block}
-              nodeId={id}
-              onRemove={(blockId) => removeBlockFromNode(id, blockId)}
-            />
+              onDragOver={(e) => handleItemDragOver(e, index)}
+              onDragLeave={handleItemDragLeave}
+              onDrop={(e) => handleItemDrop(e, index)}
+              style={{ marginBottom: index < data.blocks.length - 1 ? 6 : 0 }}
+            >
+              {/* Drop indicator line – before this block */}
+              <div style={{
+                height: 2,
+                borderRadius: 1,
+                marginBottom: 3,
+                background: dropBeforeIndex === index ? '#f36b25' : 'transparent',
+                transition: 'background 0.1s',
+              }} />
+              <BlockItem
+                block={block}
+                nodeId={id}
+              />
+              {/* Drop indicator line – after last block */}
+              {index === data.blocks.length - 1 && (
+                <div style={{
+                  height: 2,
+                  borderRadius: 1,
+                  marginTop: 3,
+                  background: dropBeforeIndex === data.blocks.length ? '#f36b25' : 'transparent',
+                  transition: 'background 0.1s',
+                }} />
+              )}
+            </div>
           ))}
 
           {/* Empty state OR drop placeholder */}
