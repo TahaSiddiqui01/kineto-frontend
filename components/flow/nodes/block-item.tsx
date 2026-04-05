@@ -3,6 +3,7 @@
 import React, { useCallback } from 'react';
 import * as LucideIcons from 'lucide-react';
 import { X } from 'lucide-react';
+import { useShallow } from 'zustand/react/shallow';
 import type { Block } from '@/types/flow';
 import { NodeManager } from '@/lib/flow/node-manager';
 import { useFlowStore } from '@/store/flow.store';
@@ -10,7 +11,6 @@ import { useFlowStore } from '@/store/flow.store';
 interface BlockItemProps {
   block: Block;
   nodeId: string;
-  onRemove: (blockId: string) => void;
 }
 
 function DynamicIcon({ name, color }: { name: string; color: string }) {
@@ -36,10 +36,17 @@ function DynamicIcon({ name, color }: { name: string; color: string }) {
   return <Icon size={14} color={color} strokeWidth={2} />;
 }
 
-export function BlockItem({ block, nodeId, onRemove }: BlockItemProps) {
+export const BlockItem = React.memo(function BlockItem({ block, nodeId }: BlockItemProps) {
   const def = NodeManager.getBlockDefinition(block.type);
   const label = block.content.text ?? def?.label ?? block.type;
-  const { setActiveDragBlock, setSelectedBlock, selectedBlockId } = useFlowStore();
+  const { setActiveDragBlock, setSelectedBlock, selectedBlockId, removeBlockFromNode } = useFlowStore(
+    useShallow((s) => ({
+      setActiveDragBlock: s.setActiveDragBlock,
+      setSelectedBlock: s.setSelectedBlock,
+      selectedBlockId: s.selectedBlockId,
+      removeBlockFromNode: s.removeBlockFromNode,
+    }))
+  );
   const isSelected = selectedBlockId === block.id;
 
   const handleDragStart = useCallback(
@@ -101,7 +108,7 @@ export function BlockItem({ block, nodeId, onRemove }: BlockItemProps) {
       <button
         onClick={(e) => {
           e.stopPropagation();
-          onRemove(block.id);
+          removeBlockFromNode(nodeId, block.id);
         }}
         className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity rounded p-0.5 hover:bg-red-500/20"
         title="Remove"
@@ -110,4 +117,4 @@ export function BlockItem({ block, nodeId, onRemove }: BlockItemProps) {
       </button>
     </div>
   );
-}
+});
