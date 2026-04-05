@@ -29,7 +29,7 @@ export default function BotCanvas({ botName }: BotCanvasProps) {
         {/* Sidebar – animated slide */}
         <div
           className="shrink-0 overflow-hidden transition-all duration-200"
-          style={{ width: sidebarOpen ? 280 : 0 }}
+          style={{ width: sidebarOpen ? 232 : 0 }}
         >
           {sidebarOpen && <NodePalette />}
         </div>

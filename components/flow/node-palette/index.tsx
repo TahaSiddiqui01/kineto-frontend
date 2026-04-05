@@ -5,8 +5,6 @@ import { Search, Lock } from 'lucide-react';
 import { NodeItem } from './node-item';
 import { BLOCK_DEFINITIONS, BLOCK_DEFINITIONS_BY_CATEGORY } from '@/lib/flow/block-definitions';
 import type { BlockCategory } from '@/types/flow';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 
 const CATEGORY_LABELS: Record<BlockCategory, string> = {
   bubbles: 'Bubbles',
@@ -33,7 +31,7 @@ export function NodePalette() {
     <aside
       className="flex flex-col h-full shrink-0 overflow-hidden"
       style={{
-        width: 280,
+        width: 232,
         background: '#1a1b1d',
         borderRight: '1px solid #2a2b2d',
       }}
@@ -45,17 +43,21 @@ export function NodePalette() {
           style={{ background: '#111213', border: '1px solid #2a2b2d' }}
         >
           <Search size={12} style={{ color: '#4b5563', flexShrink: 0 }} />
-          <Input
+          <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search..."
-            className="flex-1 bg-transparent border-none h-6 outline-none placeholder:text-neutral-600"
+            className="flex-1 bg-transparent outline-none placeholder:text-neutral-600"
             style={{ fontSize: 12, color: '#c8cace' }}
           />
         </div>
-        <Button className='h-10'>
+        <button
+          className="shrink-0 rounded-lg p-1.5 transition-colors hover:bg-white/5"
+          style={{ border: '1px solid #2a2b2d', background: '#111213' }}
+          title="Locked blocks"
+        >
           <Lock size={12} style={{ color: '#4b5563' }} />
-        </Button>
+        </button>
       </div>
 
       {/* Scrollable block list */}
@@ -106,7 +108,7 @@ function CategoryLabel({ children }: { children: React.ReactNode }) {
 
 function Grid({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-2 gap-2">
+    <div className="grid grid-cols-2 gap-1">
       {children}
     </div>
   );
