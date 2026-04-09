@@ -31,7 +31,7 @@ function DynamicIcon({ name, color, isDisabled }: { name: string; color: string,
 }
 
 export function NodeItem({ definition }: NodeItemProps) {
-  const { setActiveDragBlock } = useFlowStore();
+  const setActiveDragBlock = useFlowStore((s) => s.setActiveDragBlock);
 
   const handleDragStart = useCallback(
     (e: React.DragEvent<HTMLDivElement>) => {

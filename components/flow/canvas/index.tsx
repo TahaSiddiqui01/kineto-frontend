@@ -13,6 +13,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Code2, MoreHorizontal } from 'lucide-react';
+import { useShallow } from 'zustand/react/shallow';
 
 import { GroupNode } from '../nodes/group-node';
 import { StartNode } from '../nodes/start-node';
@@ -24,12 +25,28 @@ import type { BlockType } from '@/types/flow';
 const NODE_TYPES = { group: GroupNode, start: StartNode } as const;
 const EDGE_TYPES = { 'flow-edge': FlowEdgeComponent } as const;
 const DEFAULT_VIEWPORT = { zoom: 1, x: 120, y: 140 };
+const PRO_OPTIONS = { hideAttribution: true } as const;
+const DEFAULT_EDGE_OPTIONS = { type: 'flow-edge' } as const;
+const CANVAS_STYLE = { background: '#111213' } as const;
 
 export function FlowCanvas() {
   const {
     nodes, edges, onNodesChange, onEdgesChange, onConnect, addGroupNode,
     undo, redo, setViewport, clearSelectedBlock,
-  } = useFlowStore();
+  } = useFlowStore(
+    useShallow((s) => ({
+      nodes: s.nodes,
+      edges: s.edges,
+      onNodesChange: s.onNodesChange,
+      onEdgesChange: s.onEdgesChange,
+      onConnect: s.onConnect,
+      addGroupNode: s.addGroupNode,
+      undo: s.undo,
+      redo: s.redo,
+      setViewport: s.setViewport,
+      clearSelectedBlock: s.clearSelectedBlock,
+    }))
+  );
   const { screenToFlowPosition } = useReactFlow();
   const [jsonOpen, setJsonOpen] = useState(false);
 
@@ -92,13 +109,13 @@ export function FlowCanvas() {
         onDrop={onDrop}
         onMoveEnd={handleMoveEnd}
         onPaneClick={clearSelectedBlock}
-        style={{ background: '#111213' }}
+        style={CANVAS_STYLE}
         minZoom={0.1}
         maxZoom={5}
         defaultViewport={DEFAULT_VIEWPORT}
-        defaultEdgeOptions={{ type: 'flow-edge' }}
+        defaultEdgeOptions={DEFAULT_EDGE_OPTIONS}
         selectionMode={SelectionMode.Partial}
-        proOptions={{ hideAttribution: true }}
+        proOptions={PRO_OPTIONS}
         elevateNodesOnSelect
       >
         <Background
