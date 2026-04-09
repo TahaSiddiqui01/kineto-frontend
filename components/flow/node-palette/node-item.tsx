@@ -5,12 +5,13 @@ import * as LucideIcons from 'lucide-react';
 import { Lock } from 'lucide-react';
 import type { BlockDefinition } from '@/types/flow';
 import { useFlowStore } from '@/store/flow.store';
+import { cn } from '@/lib/utils';
 
 interface NodeItemProps {
   definition: BlockDefinition;
 }
 
-function DynamicIcon({ name, color }: { name: string; color: string }) {
+function DynamicIcon({ name, color, isDisabled }: { name: string; color: string, isDisabled: boolean }) {
   const Icon = (
     LucideIcons as Record<string, React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>>
   )[name];
@@ -26,7 +27,7 @@ function DynamicIcon({ name, color }: { name: string; color: string }) {
         }}
       />
     );
-  return <Icon size={12} color={color} strokeWidth={2} />;
+  return <Icon size={12} color={isDisabled ? "#2d2e2d" : color} strokeWidth={2} />;
 }
 
 export function NodeItem({ definition }: NodeItemProps) {
@@ -56,14 +57,19 @@ export function NodeItem({ definition }: NodeItemProps) {
 
   return (
     <div
-      draggable
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-      className="flex items-center gap-1.5 rounded-lg select-none cursor-grab active:cursor-grabbing transition-colors hover:bg-white/6 bg-[#1e1f22] border border-[#2e3033] px-2 py-2.5"
+      draggable={!definition.isDisabled}
+      onDragStart={definition.isDisabled ? () => {} : handleDragStart}
+      onDragEnd={definition.isDisabled ? () => {} : handleDragEnd}
+      className={cn("flex items-center gap-1.5 rounded-lg select-none cursor-grab active:cursor-grabbing transition-colors bg-[#1e1f22] border border-[#2e3033] px-2 py-2.5", {
+        "hover:bg-white/6": !definition.isDisabled
+      })}
       title={definition.label}
+      aria-disabled={definition.isDisabled}
     >
-      <DynamicIcon name={definition.iconName} color={definition.color} />
-      <span className="flex-1 truncate text-sm text-[#c8cace]">
+      <DynamicIcon isDisabled={definition.isDisabled!} name={definition.iconName} color={definition.color} />
+      <span className={cn("flex-1 truncate text-sm text-[#c8cace]", {
+        "text-[#2d2e2d]": definition.isDisabled
+      })}>
         {definition.label}
       </span>
       {definition.isPro && (
@@ -74,7 +80,6 @@ export function NodeItem({ definition }: NodeItemProps) {
           style={{
             fontSize: 8,
             fontWeight: 700,
-            color: '#f97316',
             background: 'rgba(249,115,22,0.15)',
             borderRadius: 3,
             padding: '1px 3px',
