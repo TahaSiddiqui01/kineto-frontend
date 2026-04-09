@@ -1,39 +1,16 @@
 'use client';
 
 import React, { useCallback } from 'react';
-import * as LucideIcons from 'lucide-react';
 import { X } from 'lucide-react';
 import { useShallow } from 'zustand/react/shallow';
 import type { Block } from '@/types/flow';
 import { NodeManager } from '@/lib/flow/node-manager';
 import { useFlowStore } from '@/store/flow.store';
+import { DynamicIcon } from '@/components/ui/icons/dynamic-icon';
 
 interface BlockItemProps {
   block: Block;
   nodeId: string;
-}
-
-function DynamicIcon({ name, color }: { name: string; color: string }) {
-  const Icon = (
-    LucideIcons as Record<
-      string,
-      React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>
-    >
-  )[name];
-  if (!Icon)
-    return (
-      <span
-        style={{
-          width: 14,
-          height: 14,
-          borderRadius: '50%',
-          background: color,
-          display: 'inline-block',
-          flexShrink: 0,
-        }}
-      />
-    );
-  return <Icon size={14} color={color} strokeWidth={2} />;
 }
 
 export const BlockItem = React.memo(function BlockItem({ block, nodeId }: BlockItemProps) {

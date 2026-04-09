@@ -1,33 +1,14 @@
 'use client';
 
 import React, { useCallback } from 'react';
-import * as LucideIcons from 'lucide-react';
 import { Lock } from 'lucide-react';
 import type { BlockDefinition } from '@/types/flow';
 import { useFlowStore } from '@/store/flow.store';
 import { cn } from '@/lib/utils';
+import { DynamicIcon } from '@/components/ui/icons/dynamic-icon';
 
 interface NodeItemProps {
   definition: BlockDefinition;
-}
-
-function DynamicIcon({ name, color, isDisabled }: { name: string; color: string, isDisabled: boolean }) {
-  const Icon = (
-    LucideIcons as Record<string, React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>>
-  )[name];
-  if (!Icon)
-    return (
-      <span
-        style={{
-          width: 12,
-          height: 12,
-          borderRadius: '50%',
-          background: color,
-          display: 'inline-block',
-        }}
-      />
-    );
-  return <Icon size={12} color={isDisabled ? "#2d2e2d" : color} strokeWidth={2} />;
 }
 
 export function NodeItem({ definition }: NodeItemProps) {

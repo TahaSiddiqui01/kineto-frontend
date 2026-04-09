@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { GithubIcon, GoogleIcon } from "@/components/ui/icons/KinetoIcons"
+import { GithubIcon, GoogleIcon } from "@/components/ui/icons/kineto-icons"
 import { useAuth } from "@/hooks/use-auth"
 
 const loginSchema = z.object({

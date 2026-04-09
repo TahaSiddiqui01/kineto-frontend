@@ -1,22 +1,14 @@
 'use client';
 
-import React, { useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { X } from 'lucide-react';
-import * as LucideIcons from 'lucide-react';
 import { useShallow } from 'zustand/react/shallow';
 import { useFlowStore } from '@/store/flow.store';
 import { BLOCK_CONFIG_SCHEMAS_MAP } from '@/lib/flow/block-config-schemas';
 import { NodeManager } from '@/lib/flow/node-manager';
 import type { BlockContent, GroupFlowNode } from '@/types/flow';
 import { BlockConfigField } from './block-config-field';
-
-function DynamicIcon({ name, color }: { name: string; color: string }) {
-  const Icon = (
-    LucideIcons as Record<string, React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>>
-  )[name];
-  if (!Icon) return <span style={{ width: 14, height: 14, borderRadius: '50%', background: color, display: 'inline-block' }} />;
-  return <Icon size={14} color={color} strokeWidth={2} />;
-}
+import { DynamicIcon } from '@/components/ui/icons/dynamic-icon';
 
 export function BlockConfigPanel() {
   const { selectedBlockId, selectedBlockNodeId, clearSelectedBlock, updateBlockContent } =
