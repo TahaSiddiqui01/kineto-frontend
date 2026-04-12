@@ -15,6 +15,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { useFlowStore } from '@/store/flow.store';
+import { useShallow } from 'zustand/react/shallow';
 
 type NavTab = 'flow' | 'theme' | 'settings' | 'share' | 'results';
 
@@ -31,7 +32,9 @@ export function FlowNavbar({
 }: FlowNavbarProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<NavTab>('flow');
-  const { undo, redo, canUndo, canRedo } = useFlowStore();
+  const { undo, redo, canUndo, canRedo } = useFlowStore(
+    useShallow((s) => ({ undo: s.undo, redo: s.redo, canUndo: s.canUndo, canRedo: s.canRedo }))
+  );
 
   return (
     <header

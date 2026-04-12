@@ -36,7 +36,7 @@ export const BLOCK_DEFINITIONS: BlockDefinition[] = [
   { type: 'return',        label: 'Return',       category: 'logic', iconName: 'RotateCcw',    color: '#8b5cf6' },
 
   // ── Events ───────────────────────────────────────────────────────────────────
-  { type: 'start-event',   label: 'Start',   category: 'events', iconName: 'Flag',        color: '#64748b' },
+  { type: 'start-event',   label: 'Start',   category: 'events', iconName: 'Flag',        color: '#64748b', isDisabled: true },
   { type: 'command-event', label: 'Command', category: 'events', iconName: 'Command',     color: '#64748b' },
   { type: 'reply-event',   label: 'Reply',   category: 'events', iconName: 'CornerDownLeft', color: '#64748b' },
   { type: 'invalid-event', label: 'Invalid', category: 'events', iconName: 'X',           color: '#64748b' },

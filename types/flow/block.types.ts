@@ -85,6 +85,7 @@ export interface BlockDefinition {
   color: string;
   isPro?: boolean;
   isBeta?: boolean;
+  isDisabled?: boolean;
 }
 
 export interface BlockContent {
