@@ -3,11 +3,12 @@
 import { Mail, Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
+import { set, z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { GithubIcon, GoogleIcon } from "@/components/ui/icons/kineto-icons"
 import { useAuth } from "@/hooks/use-auth"
+import { useEffect, useState } from "react"
 
 const loginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Enter a valid email address"),
@@ -17,6 +18,8 @@ type LoginFormValues = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
   const { createMagicLink, googleAuth, githubAuth } = useAuth()
+  const [authenticatingWithGithub, setAuthenticatingWithGithub] = useState(false)
+  const [authenticatingWithGoogle, setAuthenticatingWithGoogle] = useState(false)
 
   const {
     register,
@@ -33,15 +36,23 @@ export default function LoginPage() {
     })
   }
 
-  const oauthPending = googleAuth.isPending || githubAuth.isPending
+
+  const isLoading = authenticatingWithGithub || authenticatingWithGoogle || createMagicLink.isPending
+
+  useEffect(() => {
+    setAuthenticatingWithGithub(false)
+    setAuthenticatingWithGoogle(false)
+  }, [googleAuth.isSuccess, githubAuth.isSuccess, googleAuth.isError, githubAuth.isError])
+  
+
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-background px-6">
 
       {/* Background Glow */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute left-1/2 top-0 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-purple-500/20 blur-3xl" />
-        <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-blue-500/20 blur-3xl" />
+        <div className="absolute left-1/2 top-0 h-125 w-125 -translate-x-1/2 rounded-full bg-purple-500/20 blur-3xl" />
+        <div className="absolute bottom-0 right-0 h-100 w-100 rounded-full bg-blue-500/20 blur-3xl" />
       </div>
 
       <div className="w-full max-w-md space-y-6">
@@ -64,8 +75,12 @@ export default function LoginPage() {
             <Button
               variant="outline"
               className="w-full h-11 rounded-xl"
-              disabled={oauthPending}
-              onClick={() => githubAuth.mutate()}
+              disabled={isLoading}
+              onClick={() => {
+                setAuthenticatingWithGithub(true)
+                console.log("Initiating GitHub auth...")
+                githubAuth.mutate()
+              }}
             >
               {githubAuth.isPending
                 ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -76,8 +91,11 @@ export default function LoginPage() {
             <Button
               variant="outline"
               className="w-full h-11 rounded-xl"
-              disabled={oauthPending}
-              onClick={() => googleAuth.mutate()}
+              disabled={isLoading}
+              onClick={() => {
+                setAuthenticatingWithGoogle(true)
+                googleAuth.mutate()
+              }}
             >
               {googleAuth.isPending
                 ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -111,7 +129,7 @@ export default function LoginPage() {
             <Button
               type="submit"
               className="w-full h-11 rounded-xl"
-              disabled={createMagicLink.isPending}
+              disabled={isLoading}
             >
               {createMagicLink.isPending
                 ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
