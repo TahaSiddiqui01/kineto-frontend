@@ -3,7 +3,7 @@
 import { Mail, Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { set, z } from "zod"
+import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { GithubIcon, GoogleIcon } from "@/components/ui/icons/kineto-icons"
@@ -39,6 +39,7 @@ export default function LoginPage() {
 
   const isLoading = authenticatingWithGithub || authenticatingWithGoogle || createMagicLink.isPending
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     setAuthenticatingWithGithub(false)
     setAuthenticatingWithGoogle(false)

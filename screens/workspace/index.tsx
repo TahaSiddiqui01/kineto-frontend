@@ -8,7 +8,7 @@ import WorkspaceLoadingSkeleton from "@/components/workspace/workspace-loading-s
 import { CreateWorkspaceDialog } from "@/components/workspace/create-workspace-dialog"
 import { useWorkspaces } from "@/hooks/use-workspace"
 import { Plus } from "lucide-react"
-import { Workspace, WorkspaceMember } from "@/types/workspace"
+import { WorkspaceMember } from "@/types/workspace"
 
 export default function WorkspacesPage() {
   const { workspaces, isLoading } = useWorkspaces()
