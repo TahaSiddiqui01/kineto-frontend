@@ -4,11 +4,10 @@ import { useCallback, useMemo } from 'react';
 import { X } from 'lucide-react';
 import { useShallow } from 'zustand/react/shallow';
 import { useFlowStore } from '@/store/flow.store';
-import { BLOCK_CONFIG_SCHEMAS_MAP } from '@/lib/flow/block-config-schemas';
 import { NodeManager } from '@/lib/flow/node-manager';
 import type { BlockContent, GroupFlowNode } from '@/types/flow';
-import { BlockConfigField } from './block-config-field';
 import { DynamicIcon } from '@/components/ui/icons/dynamic-icon';
+import { BLOCK_CONFIG_REGISTRY, DEFAULT_BLOCK_CONFIG } from './registry';
 
 export function BlockConfigPanel() {
   const { selectedBlockId, selectedBlockNodeId, clearSelectedBlock, updateBlockContent } =
@@ -35,13 +34,15 @@ export function BlockConfigPanel() {
 
   const isOpen = !!selectedBlockId && !!selectedBlockNodeId;
 
-  const { schema, def } = useMemo(() => {
-    if (!block) return { schema: null, def: null };
-    return {
-      schema: BLOCK_CONFIG_SCHEMAS_MAP.get(block.type) ?? null,
-      def: NodeManager.getBlockDefinition(block.type) ?? null,
-    };
-  }, [block]);
+  const def = useMemo(
+    () => (block ? NodeManager.getBlockDefinition(block.type) ?? null : null),
+    [block]
+  );
+
+  const ConfigComponent = useMemo(
+    () => (block ? (BLOCK_CONFIG_REGISTRY[block.type] ?? DEFAULT_BLOCK_CONFIG) : null),
+    [block]
+  );
 
   const handleChange = useCallback(
     (patch: Partial<BlockContent>) => {
@@ -65,7 +66,7 @@ export function BlockConfigPanel() {
           </span>
         )}
         <span className="text-[13px] font-semibold text-[#e2e4e8] flex-1 min-w-0 truncate">
-          {schema?.title ?? block?.type ?? ''}
+          {def?.label ?? block?.type ?? ''}
         </span>
         <button
           onClick={clearSelectedBlock}
@@ -76,21 +77,10 @@ export function BlockConfigPanel() {
         </button>
       </div>
 
-      {/* Fields */}
-      <div className="flex-1 overflow-y-auto p-[14px] flex flex-col gap-4">
-        {block && schema && schema.fields.map((field) => (
-          <BlockConfigField
-            key={field.key}
-            field={field}
-            value={block.content[field.key] as string | boolean | undefined}
-            onChange={handleChange}
-          />
-        ))}
-
-        {schema && schema.fields.length === 0 && (
-          <p className="text-[13px] text-gray-500 text-center mt-6">
-            No configuration options
-          </p>
+      {/* Config body */}
+      <div className="flex-1 overflow-y-auto p-[14px]">
+        {block && ConfigComponent && (
+          <ConfigComponent block={block} onChange={handleChange} />
         )}
       </div>
     </div>

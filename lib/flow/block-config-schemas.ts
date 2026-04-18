@@ -6,7 +6,7 @@ export const BLOCK_CONFIG_SCHEMAS: BlockConfigSchema[] = [
     blockType: 'text-bubble',
     title: 'Text bubble',
     fields: [
-      { key: 'text', label: 'Message', type: 'textarea', placeholder: 'Type your message…', showVariables: true },
+      { key: 'text', label: 'Message', type: 'textarea', placeholder: 'Type your message…' },
     ],
   },
   {
