@@ -117,6 +117,12 @@ export interface BlockFieldOption {
   label: string;
 }
 
+export interface ActiveDragBlock {
+  type: BlockType;
+  iconName: string;
+  color: string;
+  label: string;
+}
 export interface BlockFieldSchema {
   key: string;
   label: string;

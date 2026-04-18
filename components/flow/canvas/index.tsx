@@ -18,9 +18,9 @@ import { useShallow } from 'zustand/react/shallow';
 import { GroupNode } from '../nodes/group-node';
 import { StartNode } from '../nodes/start-node';
 import { FlowEdgeComponent } from '../edges/custom-edge';
-import { JsonPreviewSheet } from '../json-preview';
 import { useFlowStore } from '@/store/flow.store';
 import type { BlockType } from '@/types/flow';
+import { VariablesPanel } from '../variables/variable-panel';
 
 const NODE_TYPES = { group: GroupNode, start: StartNode } as const;
 const EDGE_TYPES = { 'flow-edge': FlowEdgeComponent } as const;
@@ -48,7 +48,7 @@ export function FlowCanvas() {
     }))
   );
   const { screenToFlowPosition } = useReactFlow();
-  const [jsonOpen, setJsonOpen] = useState(false);
+  const [variablePanOpen, setVariablePanOpen] = useState(false);
 
   // ── Keyboard shortcuts ──────────────────────────────────────────────────
   useEffect(() => {
@@ -131,7 +131,7 @@ export function FlowCanvas() {
           <ControlButton
             title="View flow JSON"
             className="custom-ctrl"
-            onClick={() => setJsonOpen(true)}
+            onClick={() => setVariablePanOpen(true)}
           >
             <Code2 size={12} />
           </ControlButton>
@@ -142,7 +142,7 @@ export function FlowCanvas() {
       </ReactFlow>
 
       {/* JSON preview sheet */}
-      <JsonPreviewSheet open={jsonOpen} onOpenChange={setJsonOpen} />
+      <VariablesPanel panOpen={variablePanOpen} onPanChange={setVariablePanOpen} />
     </div>
   );
 }
