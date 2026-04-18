@@ -7,6 +7,7 @@ import type { Block } from '@/types/flow';
 import { NodeManager } from '@/lib/flow/node-manager';
 import { useFlowStore } from '@/store/flow.store';
 import { DynamicIcon } from '@/components/ui/icons/dynamic-icon';
+import { BLOCK_ITEM_PREVIEW_REGISTRY } from './block-item-previews/registry';
 
 interface BlockItemProps {
   block: Block;
@@ -15,7 +16,6 @@ interface BlockItemProps {
 
 export const BlockItem = React.memo(function BlockItem({ block, nodeId }: BlockItemProps) {
   const def = NodeManager.getBlockDefinition(block.type);
-  const label = block.content.text ?? def?.label ?? block.type;
   const { setActiveDragBlock, setSelectedBlock, selectedBlockId, removeBlockFromNode } = useFlowStore(
     useShallow((s) => ({
       setActiveDragBlock: s.setActiveDragBlock,
@@ -24,7 +24,11 @@ export const BlockItem = React.memo(function BlockItem({ block, nodeId }: BlockI
       removeBlockFromNode: s.removeBlockFromNode,
     }))
   );
+
   const isSelected = selectedBlockId === block.id;
+  const entry = BLOCK_ITEM_PREVIEW_REGISTRY[block.type];
+  const hasContent = entry?.hasContent(block) ?? false;
+  const PreviewComponent = entry?.component;
 
   const handleDragStart = useCallback(
     (e: React.DragEvent) => {
@@ -34,40 +38,26 @@ export const BlockItem = React.memo(function BlockItem({ block, nodeId }: BlockI
         JSON.stringify({ blockId: block.id, sourceNodeId: nodeId })
       );
       e.dataTransfer.effectAllowed = 'move';
-
       if (def) {
-        setActiveDragBlock({
-          type: block.type,
-          iconName: def.iconName,
-          color: def.color,
-          label: def.label,
-        });
+        setActiveDragBlock({ type: block.type, iconName: def.iconName, color: def.color, label: def.label });
       }
     },
     [block.id, block.type, nodeId, def, setActiveDragBlock]
   );
 
-  const handleDragEnd = useCallback(() => {
-    setActiveDragBlock(null);
-  }, [setActiveDragBlock]);
+  const handleDragEnd = useCallback(() => setActiveDragBlock(null), [setActiveDragBlock]);
 
   return (
     <div
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      onClick={(e) => {
-        e.stopPropagation();
-        setSelectedBlock(block.id, nodeId);
-      }}
-      className="group relative flex items-center gap-2.5 nodrag cursor-pointer select-none"
-      style={{
-        background: isSelected ? '#1e2535' : '#1c1d20',
-        border: isSelected ? '1px solid #3b82f6' : '1px solid #2e2f33',
-        borderRadius: 8,
-        padding: '9px 10px 9px 12px',
-        boxShadow: isSelected ? '0 0 0 2px rgba(59,130,246,0.25)' : undefined,
-      }}
+      onClick={(e) => { e.stopPropagation(); setSelectedBlock(block.id, nodeId); }}
+      className={`group relative flex items-center gap-2.5 nodrag cursor-pointer select-none rounded-lg px-3 py-[9px] border transition-all ${
+        isSelected
+          ? 'bg-[#1e2535] border-blue-500 shadow-[0_0_0_2px_rgba(59,130,246,0.25)]'
+          : 'bg-[#1c1d20] border-[#2e2f33] hover:border-[#3e3f43]'
+      }`}
     >
       {def && (
         <span className="shrink-0">
@@ -75,22 +65,25 @@ export const BlockItem = React.memo(function BlockItem({ block, nodeId }: BlockI
         </span>
       )}
 
-      <span
-        className="flex-1 text-left truncate text-sm text-[#e2e4e8] font-medium"
-      >
-        {label}
-      </span>
+      {/* Content area */}
+      {PreviewComponent && hasContent ? (
+        <PreviewComponent block={block} />
+      ) : (
+        <span className="flex-1 truncate text-sm text-gray-600 italic text-left">
+          {entry ? 'Click to configure' : (def?.label ?? block.type)}
+        </span>
+      )}
 
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          removeBlockFromNode(nodeId, block.id);
-        }}
-        className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity rounded p-0.5 hover:bg-red-500/20"
-        title="Remove"
-      >
-        <X size={10} style={{ color: '#6b7280' }} />
-      </button>
+      {/* Remove: only visible when content exists */}
+      {hasContent && (
+        <button
+          onClick={(e) => { e.stopPropagation(); removeBlockFromNode(nodeId, block.id); }}
+          className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity rounded p-0.5 hover:bg-red-500/20 text-gray-500"
+          title="Remove"
+        >
+          <X size={10} />
+        </button>
+      )}
     </div>
   );
 });
