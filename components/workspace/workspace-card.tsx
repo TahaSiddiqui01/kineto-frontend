@@ -16,7 +16,6 @@ interface WorkspaceCardProps {
 
 export const WorkspaceCard = ({
   name,
-  slug,
   industry,
   logoUrl,
   plan,

@@ -3,16 +3,13 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  ChevronLeft,
   PanelLeftClose,
-  PanelLeftOpen,
-  LayoutTemplate,
-  Undo2,
+  PanelLeftOpen, Undo2,
   Redo2,
   HelpCircle,
   Share2,
   Play,
-  ChevronDown,
+  ChevronDown
 } from 'lucide-react';
 import { useFlowStore } from '@/store/flow.store';
 import { useShallow } from 'zustand/react/shallow';

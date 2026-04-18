@@ -38,7 +38,7 @@ export function FolderCard({ folder, workspaceId, botCount, isSelected, onClick 
 
     return (
         <>
-            <button
+            <div
                 onClick={onClick}
                 className={cn(
                     "group relative flex w-full flex-col gap-3 rounded-xl border p-4 text-left transition-all duration-150",
@@ -75,7 +75,7 @@ export function FolderCard({ folder, workspaceId, botCount, isSelected, onClick 
                         {botCount} {botCount === 1 ? "bot" : "bots"}
                     </p>
                 </div>
-            </button>
+            </div>
 
             <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
                 <DialogContent>
