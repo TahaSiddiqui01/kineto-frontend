@@ -47,7 +47,7 @@ export function BlockConfigField({ field, value, onChange }: BlockConfigFieldPro
         el.setSelectionRange(pos, pos);
       });
     },
-    [value, field.key, onChange]
+    [value, field.key, onChange, handleStringChange]
   );
 
   useEffect(() => {
