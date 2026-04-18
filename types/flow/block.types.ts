@@ -131,6 +131,7 @@ export interface BlockFieldSchema {
   options?: BlockFieldOption[];
   defaultValue?: string | boolean;
   hint?: string;
+  showVariables?: boolean;
 }
 
 export interface BlockConfigSchema {

@@ -61,4 +61,8 @@ export interface FlowStore {
     setVariable: (v: Variable) => void;
     updateVariable: (v: Partial<Variable>, saveInResultsToggle?: boolean) => void
     deleteVariable: (id: string | number) => void
+
+    // Variables panel visibility
+    variablePanelOpen: boolean;
+    setVariablePanelOpen: (open: boolean) => void;
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
   ReactFlow,
   Background,
@@ -33,6 +33,7 @@ export function FlowCanvas() {
   const {
     nodes, edges, onNodesChange, onEdgesChange, onConnect, addGroupNode,
     undo, redo, setViewport, clearSelectedBlock,
+    variablePanelOpen, setVariablePanelOpen,
   } = useFlowStore(
     useShallow((s) => ({
       nodes: s.nodes,
@@ -45,10 +46,11 @@ export function FlowCanvas() {
       redo: s.redo,
       setViewport: s.setViewport,
       clearSelectedBlock: s.clearSelectedBlock,
+      variablePanelOpen: s.variablePanelOpen,
+      setVariablePanelOpen: s.setVariablePanelOpen,
     }))
   );
   const { screenToFlowPosition } = useReactFlow();
-  const [variablePanOpen, setVariablePanOpen] = useState(false);
 
   // ── Keyboard shortcuts ──────────────────────────────────────────────────
   useEffect(() => {
@@ -131,7 +133,7 @@ export function FlowCanvas() {
           <ControlButton
             title="View flow JSON"
             className="custom-ctrl"
-            onClick={() => setVariablePanOpen(true)}
+            onClick={() => setVariablePanelOpen(true)}
           >
             <Code2 size={12} />
           </ControlButton>
@@ -142,7 +144,7 @@ export function FlowCanvas() {
       </ReactFlow>
 
       {/* JSON preview sheet */}
-      <VariablesPanel panOpen={variablePanOpen} onPanChange={setVariablePanOpen} />
+      <VariablesPanel panOpen={variablePanelOpen} onPanChange={setVariablePanelOpen} />
     </div>
   );
 }

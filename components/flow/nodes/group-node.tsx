@@ -7,8 +7,8 @@ import { Trash2 } from 'lucide-react';
 import { useShallow } from 'zustand/react/shallow';
 import { BlockItem } from './block-item';
 import { useFlowStore } from '@/store/flow.store';
-import type { ActiveDragBlock } from '@/store/flow.store';
-import type { GroupFlowNode, BlockType } from '@/types/flow';
+import type { GroupFlowNode, BlockType, ActiveDragBlock } from '@/types/flow';
+import { DynamicIcon } from '@/components/ui/icons/dynamic-icon';
 
 const HANDLE: React.CSSProperties = {
   width: 13,
@@ -22,16 +22,6 @@ const HANDLE: React.CSSProperties = {
 
 // ─── Drop placeholder shown during drag-over ────────────────────────────────
 
-function IconPreview({ name, color }: { name: string; color: string }) {
-  const Icon = (
-    LucideIcons as Record<
-      string,
-      React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>
-    >
-  )[name];
-  if (!Icon) return null;
-  return <Icon size={13} color={color} strokeWidth={2} />;
-}
 
 function DropPlaceholder({ active }: { active: ActiveDragBlock | null }) {
   return (
@@ -39,7 +29,7 @@ function DropPlaceholder({ active }: { active: ActiveDragBlock | null }) {
       {active ? (
         <>
           <span className="shrink-0">
-            <IconPreview name={active.iconName} color={active.color} />
+            <DynamicIcon name={active.iconName} color={active.color} />
           </span>
           <span
             className="flex-1 truncate"

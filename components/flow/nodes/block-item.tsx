@@ -76,8 +76,7 @@ export const BlockItem = React.memo(function BlockItem({ block, nodeId }: BlockI
       )}
 
       <span
-        className="flex-1 truncate"
-        style={{ fontSize: 13, color: '#e2e4e8', fontWeight: 500 }}
+        className="flex-1 text-left truncate text-sm text-[#e2e4e8] font-medium"
       >
         {label}
       </span>

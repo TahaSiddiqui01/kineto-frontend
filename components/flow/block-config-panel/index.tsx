@@ -21,8 +21,6 @@ export function BlockConfigPanel() {
       }))
     );
 
-  // Focused selector — only re-renders when this specific block's data changes,
-  // not on every position update during drag.
   const block = useFlowStore(
     useCallback(
       (s) => {
@@ -55,50 +53,31 @@ export function BlockConfigPanel() {
 
   return (
     <div
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        height: '100%',
-        width: 280,
-        background: '#16171a',
-        borderRight: '1px solid #2a2b2d',
-        display: 'flex',
-        flexDirection: 'column',
-        transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
-        transition: 'transform 0.22s cubic-bezier(0.22, 1, 0.36, 1)',
-        zIndex: 10,
-        pointerEvents: isOpen ? 'auto' : 'none',
-      }}
+      className={`absolute top-0 left-0 h-full w-[280px] bg-[#16171a] border-r border-[#2a2b2d] flex flex-col z-10 transition-transform duration-[220ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        isOpen ? 'translate-x-0 pointer-events-auto' : '-translate-x-full pointer-events-none'
+      }`}
     >
       {/* Header */}
-      <div
-        className="flex items-center gap-2.5 shrink-0"
-        style={{
-          padding: '12px 14px',
-          borderBottom: '1px solid #2a2b2d',
-        }}
-      >
+      <div className="flex items-center gap-2.5 shrink-0 px-[14px] py-3 border-b border-[#2a2b2d]">
         {def && (
           <span className="shrink-0">
             <DynamicIcon name={def.iconName} color={def.color} />
           </span>
         )}
-        <span style={{ fontSize: 13, fontWeight: 600, color: '#e2e4e8', flex: 1, minWidth: 0 }}>
+        <span className="text-[13px] font-semibold text-[#e2e4e8] flex-1 min-w-0 truncate">
           {schema?.title ?? block?.type ?? ''}
         </span>
         <button
           onClick={clearSelectedBlock}
-          className="flex items-center justify-center rounded-lg p-1 hover:bg-white/[0.06] transition-colors"
+          className="flex items-center justify-center rounded-lg p-1 hover:bg-white/[0.06] transition-colors text-gray-500 shrink-0"
           title="Close"
-          style={{ color: '#6b7280', flexShrink: 0 }}
         >
           <X size={14} />
         </button>
       </div>
 
       {/* Fields */}
-      <div className="flex-1 overflow-y-auto" style={{ padding: '14px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div className="flex-1 overflow-y-auto p-[14px] flex flex-col gap-4">
         {block && schema && schema.fields.map((field) => (
           <BlockConfigField
             key={field.key}
@@ -109,7 +88,7 @@ export function BlockConfigPanel() {
         ))}
 
         {schema && schema.fields.length === 0 && (
-          <p style={{ fontSize: 13, color: '#6b7280', textAlign: 'center', marginTop: 24 }}>
+          <p className="text-[13px] text-gray-500 text-center mt-6">
             No configuration options
           </p>
         )}

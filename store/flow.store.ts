@@ -10,12 +10,6 @@ import { FlowStore } from '@/types/flow/flow-store.types';
 const HISTORY_LIMIT = 50;
 
 const INITIAL_START_NODE = NodeManager.createStartNode({ x: 80, y: 260 });
-const INITIAL_GROUP_NODE = NodeManager.createGroupNode(
-    { x: 380, y: 180 },
-    [NodeManager.createBlock('text-bubble', { text: 'Hey, what is your name?' })],
-    'Grab the name'
-);
-const INITIAL_EDGE = NodeManager.createEdge(INITIAL_START_NODE.id, INITIAL_GROUP_NODE.id);
 
 /** Push current nodes/edges onto the past stack and clear future. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -32,8 +26,8 @@ function snapshot(set: (p: any) => void, get: () => FlowStore) {
 export const useFlowStore = create<FlowStore>()(
     devtools(
         (set, get) => ({
-            nodes: [INITIAL_START_NODE, INITIAL_GROUP_NODE] as FlowNode[],
-            edges: [INITIAL_EDGE] as FlowEdge[],
+            nodes: [INITIAL_START_NODE] as FlowNode[],
+            edges: [] as FlowEdge[],
             selectedNodeId: null,
             activeDragBlock: null,
             selectedBlockId: null,
@@ -49,6 +43,7 @@ export const useFlowStore = create<FlowStore>()(
 
             // ── Variables ──────────────────────────────────────────────────────────
             variables: [],
+            variablePanelOpen: false,
 
             undo: () => {
                 const { past, nodes, edges, future } = get();
@@ -298,7 +293,10 @@ export const useFlowStore = create<FlowStore>()(
                         if (val.id !== id) return val
                     })
                 }))
-            }
+            },
+
+            setVariablePanelOpen: (open: boolean) =>
+                set({ variablePanelOpen: open }, false, 'setVariablePanelOpen'),
 
         }),
         { name: 'flow-store' }
