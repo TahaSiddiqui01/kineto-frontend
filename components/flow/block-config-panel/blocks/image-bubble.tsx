@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import * as LucideIcons from 'lucide-react';
 import { VariablePickerPopover } from '../variable-picker-popover';
 import { useVariableInsertion } from '../hooks/use-variable-insertion';
@@ -45,6 +45,7 @@ export function ImageBubbleConfig({ block, onChange }: BlockConfigProps) {
   const redirectEnabled = (block.content.redirectEnabled as boolean | undefined) ?? false;
   const iconName = block.content.iconName as string | undefined;
   const iconColor = (block.content.iconColor as string | undefined) ?? '#e2e4e8';
+  const width = block.content.width as number | undefined;
 
   const [activeTab, setActiveTab] = useState<ImageTab>('link');
   const [iconSearch, setIconSearch] = useState('');
@@ -72,14 +73,14 @@ export function ImageBubbleConfig({ block, onChange }: BlockConfigProps) {
     onChange({ imageUrl: URL.createObjectURL(file), iconName: undefined });
   }, [onChange]);
 
-  const handleUnsplashSearch = useCallback(async () => {
-    if (!unsplashQuery.trim()) return;
+  const fetchUnsplash = useCallback(async (query?: string) => {
     setIsSearching(true);
     setUnsplashError('');
     try {
-      const res = await fetch(
-        `/api/v1/media/unsplash?q=${encodeURIComponent(unsplashQuery)}`
-      );
+      const url = query?.trim()
+        ? `/api/v1/media/unsplash?q=${encodeURIComponent(query)}`
+        : `/api/v1/media/unsplash`;
+      const res = await fetch(url);
       const json = await res.json() as { data?: UnsplashResult[]; error?: string };
       if (!res.ok) {
         setUnsplashError(
@@ -95,16 +96,26 @@ export function ImageBubbleConfig({ block, onChange }: BlockConfigProps) {
     } finally {
       setIsSearching(false);
     }
-  }, [unsplashQuery]);
+  }, []);
 
-  const handleGiphySearch = useCallback(async () => {
-    if (!giphyQuery.trim()) return;
+  const handleUnsplashSearch = useCallback(() => {
+    fetchUnsplash(unsplashQuery);
+  }, [fetchUnsplash, unsplashQuery]);
+
+  useEffect(() => {
+    if (activeTab === 'unsplash' && unsplashResults.length === 0 && !unsplashError) {
+      fetchUnsplash();
+    }
+  }, [activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const fetchGiphy = useCallback(async (query?: string) => {
     setIsSearching(true);
     setGiphyError('');
     try {
-      const res = await fetch(
-        `/api/v1/media/giphy?q=${encodeURIComponent(giphyQuery)}`
-      );
+      const url = query?.trim()
+        ? `/api/v1/media/giphy?q=${encodeURIComponent(query)}`
+        : `/api/v1/media/giphy`;
+      const res = await fetch(url);
       const json = await res.json() as { data?: GiphyResult[]; error?: string };
       if (!res.ok) {
         setGiphyError(
@@ -120,7 +131,17 @@ export function ImageBubbleConfig({ block, onChange }: BlockConfigProps) {
     } finally {
       setIsSearching(false);
     }
-  }, [giphyQuery]);
+  }, []);
+
+  const handleGiphySearch = useCallback(() => {
+    fetchGiphy(giphyQuery);
+  }, [fetchGiphy, giphyQuery]);
+
+  useEffect(() => {
+    if (activeTab === 'giphy' && giphyResults.length === 0 && !giphyError) {
+      fetchGiphy();
+    }
+  }, [activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="flex flex-col gap-4">
@@ -163,7 +184,11 @@ export function ImageBubbleConfig({ block, onChange }: BlockConfigProps) {
             <img
               src={imageUrl}
               alt={alt ?? ''}
-              className="w-full rounded-lg object-cover max-h-40 border border-[#2e2f33]"
+              className="rounded-lg object-cover border border-[#2e2f33]"
+              style={{
+                width: width ? `${width}px` : '100%',
+                maxWidth: '100%',
+              }}
             />
           )}
         </div>
@@ -218,7 +243,13 @@ export function ImageBubbleConfig({ block, onChange }: BlockConfigProps) {
               {isSearching ? '…' : 'Search'}
             </button>
           </div>
-          {unsplashError ? (
+          {isSearching ? (
+            <div className="grid grid-cols-3 gap-1.5 max-h-52 overflow-y-auto">
+              {Array.from({ length: 9 }).map((_, i) => (
+                <div key={i} className="w-full aspect-square rounded-md bg-[#2e2f33] animate-pulse" />
+              ))}
+            </div>
+          ) : unsplashError ? (
             <p className="text-center text-amber-500 text-[12px] py-2">{unsplashError}</p>
           ) : unsplashResults.length > 0 ? (
             <div className="grid grid-cols-3 gap-1.5 max-h-52 overflow-y-auto">
@@ -236,7 +267,7 @@ export function ImageBubbleConfig({ block, onChange }: BlockConfigProps) {
             </div>
           ) : (
             <p className="text-center text-gray-600 text-[12px] py-4">
-              {unsplashQuery && !isSearching ? 'No results found' : 'Search for photos above'}
+              {unsplashQuery ? 'No results found' : 'Search for photos above'}
             </p>
           )}
         </div>
@@ -262,7 +293,13 @@ export function ImageBubbleConfig({ block, onChange }: BlockConfigProps) {
               {isSearching ? '…' : 'Search'}
             </button>
           </div>
-          {giphyError ? (
+          {isSearching ? (
+            <div className="grid grid-cols-3 gap-1.5 max-h-52 overflow-y-auto">
+              {Array.from({ length: 9 }).map((_, i) => (
+                <div key={i} className="w-full aspect-square rounded-md bg-[#2e2f33] animate-pulse" />
+              ))}
+            </div>
+          ) : giphyError ? (
             <p className="text-center text-amber-500 text-[12px] py-2">{giphyError}</p>
           ) : giphyResults.length > 0 ? (
             <div className="grid grid-cols-3 gap-1.5 max-h-52 overflow-y-auto">
@@ -280,7 +317,7 @@ export function ImageBubbleConfig({ block, onChange }: BlockConfigProps) {
             </div>
           ) : (
             <p className="text-center text-gray-600 text-[12px] py-4">
-              {giphyQuery && !isSearching ? 'No results found' : 'Search for GIFs above'}
+              {giphyQuery ? 'No results found' : 'Search for GIFs above'}
             </p>
           )}
         </div>
@@ -289,6 +326,38 @@ export function ImageBubbleConfig({ block, onChange }: BlockConfigProps) {
       {/* Icons tab */}
       {activeTab === 'icons' && (
         <div className="flex flex-col gap-3">
+          {/* Preview */}
+          <div className="flex flex-col items-center gap-1.5 py-4 rounded-lg bg-[#16171a] border border-[#2e2f33]">
+            {(() => {
+              const SelectedIcon = iconName
+                ? (LucideIcons as Record<string, React.ComponentType<{ size: number; color: string; strokeWidth: number }>>)[iconName]
+                : null;
+              return SelectedIcon ? (
+                <>
+                  <SelectedIcon size={36} color={iconColor} strokeWidth={1.5} />
+                  <span className="text-[11px] text-gray-500">{iconName!.replace(/([A-Z])/g, ' $1').trim()}</span>
+                </>
+              ) : (
+                <span className="text-[12px] text-gray-600">Select an icon below</span>
+              );
+            })()}
+          </div>
+          {/* Width */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-medium text-gray-400">Width</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                min={1}
+                max={2000}
+                value={width ?? ''}
+                onChange={(e) => onChange({ width: e.target.value ? Number(e.target.value) : undefined })}
+                placeholder="Auto"
+                className={`${inputClass} flex-1`}
+              />
+              <span className="text-[12px] text-gray-500 shrink-0">px</span>
+            </div>
+          </div>
           <input
             value={iconSearch}
             onChange={(e) => setIconSearch(e.target.value)}
