@@ -89,10 +89,6 @@ export interface BlockDefinition {
 }
 
 export interface BlockContent {
-  text?: string;
-  imageUrl?: string;
-  variableName?: string;
-  conditionBranches?: ConditionBranch[];
   [key: string]: unknown;
 }
 
@@ -110,7 +106,7 @@ export interface Block {
 
 // ── Block config field schema ────────────────────────────────────────────────
 
-export type BlockFieldType = 'text' | 'textarea' | 'select' | 'toggle' | 'variable-picker';
+export type BlockFieldType = string | 'text' | 'textarea' | 'select' | 'toggle' | 'variable-picker';
 
 export interface BlockFieldOption {
   value: string;

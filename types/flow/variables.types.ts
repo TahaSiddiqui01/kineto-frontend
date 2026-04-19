@@ -1,5 +1,6 @@
 export interface Variable {
-  id: string
-  name: string
-  saveInResults?: boolean
+  id: string;
+  name: string;
+  value: string | number | boolean;
+  saveInResults?: boolean;
 }

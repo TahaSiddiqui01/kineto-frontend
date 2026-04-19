@@ -54,12 +54,12 @@ export function BlockConfigPanel() {
 
   return (
     <div
-      className={`absolute top-0 left-0 h-full w-[280px] bg-[#16171a] border-r border-[#2a2b2d] flex flex-col z-10 transition-transform duration-[220ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+      className={`absolute top-0 left-0 h-full w-70 bg-[#16171a] border-r border-[#2a2b2d] flex flex-col z-10 transition-transform duration-220 ease-[cubic-bezier(0.22,1,0.36,1)] ${
         isOpen ? 'translate-x-0 pointer-events-auto' : '-translate-x-full pointer-events-none'
       }`}
     >
       {/* Header */}
-      <div className="flex items-center gap-2.5 shrink-0 px-[14px] py-3 border-b border-[#2a2b2d]">
+      <div className="flex items-center gap-2.5 shrink-0 px-3.5 py-3 border-b border-[#2a2b2d]">
         {def && (
           <span className="shrink-0">
             <DynamicIcon name={def.iconName} color={def.color} />
@@ -70,7 +70,7 @@ export function BlockConfigPanel() {
         </span>
         <button
           onClick={clearSelectedBlock}
-          className="flex items-center justify-center rounded-lg p-1 hover:bg-white/[0.06] transition-colors text-gray-500 shrink-0"
+          className="flex items-center justify-center rounded-lg p-1 hover:bg-white/6 transition-colors text-gray-500 shrink-0"
           title="Close"
         >
           <X size={14} />
@@ -78,7 +78,7 @@ export function BlockConfigPanel() {
       </div>
 
       {/* Config body */}
-      <div className="flex-1 overflow-y-auto p-[14px]">
+      <div className="flex-1 overflow-y-auto p-3.5">
         {block && ConfigComponent && (
           <ConfigComponent block={block} onChange={handleChange} />
         )}

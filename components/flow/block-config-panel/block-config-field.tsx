@@ -80,7 +80,7 @@ export function BlockConfigField({ field, value, onChange, inputRef, labelAddon 
       )}
 
       {field.type === 'variable-picker' && (
-        <div className="w-full bg-[#1c1d20] border border-[#2e2f33] rounded-lg px-2.5 py-[7px] flex items-center gap-1.5 cursor-pointer transition-colors hover:border-[#3e3f43]">
+        <div className="w-full bg-[#1c1d20] border border-[#2e2f33] rounded-lg px-2.5 py-1.75 flex items-center gap-1.5 cursor-pointer transition-colors hover:border-[#3e3f43]">
           <span className="text-gray-500 text-[13px] flex-1">
             {typeof value === 'string' && value ? (
               <span className="text-violet-400">{`{{${value}}}`}</span>

@@ -53,11 +53,10 @@ export const BlockItem = React.memo(function BlockItem({ block, nodeId }: BlockI
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onClick={(e) => { e.stopPropagation(); setSelectedBlock(block.id, nodeId); }}
-      className={`group relative flex items-center gap-2.5 nodrag cursor-pointer select-none rounded-lg px-3 py-[9px] border transition-all ${
-        isSelected
+      className={`group relative flex items-center gap-2.5 nodrag cursor-pointer select-none rounded-lg px-3 py-2.25 border transition-all ${isSelected
           ? 'bg-[#1e2535] border-blue-500 shadow-[0_0_0_2px_rgba(59,130,246,0.25)]'
           : 'bg-[#1c1d20] border-[#2e2f33] hover:border-[#3e3f43]'
-      }`}
+        }`}
     >
       {def && (
         <span className="shrink-0">
@@ -74,16 +73,13 @@ export const BlockItem = React.memo(function BlockItem({ block, nodeId }: BlockI
         </span>
       )}
 
-      {/* Remove: only visible when content exists */}
-      {hasContent && (
-        <button
-          onClick={(e) => { e.stopPropagation(); removeBlockFromNode(nodeId, block.id); }}
-          className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity rounded p-0.5 hover:bg-red-500/20 text-gray-500"
-          title="Remove"
-        >
-          <X size={10} />
-        </button>
-      )}
+      <button
+        onClick={(e) => { e.stopPropagation(); removeBlockFromNode(nodeId, block.id); }}
+        className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity rounded p-0.5 hover:bg-red-500/20 text-gray-500"
+        title="Remove"
+      >
+        <X size={10} />
+      </button>
     </div>
   );
 });
