@@ -326,38 +326,6 @@ export function ImageBubbleConfig({ block, onChange }: BlockConfigProps) {
       {/* Icons tab */}
       {activeTab === 'icons' && (
         <div className="flex flex-col gap-3">
-          {/* Preview */}
-          <div className="flex flex-col items-center gap-1.5 py-4 rounded-lg bg-[#16171a] border border-[#2e2f33]">
-            {(() => {
-              const SelectedIcon = iconName
-                ? (LucideIcons as Record<string, React.ComponentType<{ size: number; color: string; strokeWidth: number }>>)[iconName]
-                : null;
-              return SelectedIcon ? (
-                <>
-                  <SelectedIcon size={36} color={iconColor} strokeWidth={1.5} />
-                  <span className="text-[11px] text-gray-500">{iconName!.replace(/([A-Z])/g, ' $1').trim()}</span>
-                </>
-              ) : (
-                <span className="text-[12px] text-gray-600">Select an icon below</span>
-              );
-            })()}
-          </div>
-          {/* Width */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium text-gray-400">Width</label>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                min={1}
-                max={2000}
-                value={width ?? ''}
-                onChange={(e) => onChange({ width: e.target.value ? Number(e.target.value) : undefined })}
-                placeholder="Auto"
-                className={`${inputClass} flex-1`}
-              />
-              <span className="text-[12px] text-gray-500 shrink-0">px</span>
-            </div>
-          </div>
           <input
             value={iconSearch}
             onChange={(e) => setIconSearch(e.target.value)}
@@ -403,7 +371,7 @@ export function ImageBubbleConfig({ block, onChange }: BlockConfigProps) {
                       iconName === name ? 'border-blue-500' : 'border-transparent'
                     }`}
                   >
-                    <Icon size={16} color={iconColor} strokeWidth={2} />
+                    <Icon size={18} color={iconColor} strokeWidth={2} />
                   </button>
                 );
               })}

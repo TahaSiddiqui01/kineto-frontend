@@ -18,7 +18,7 @@ export const BLOCK_ITEM_PREVIEW_REGISTRY: Partial<Record<BlockType, BlockItemPre
   },
   'image-bubble': {
     component: ImageBubbleItemPreview,
-    hasContent: (b) => !!b.content.imageUrl,
+    hasContent: (b) => !!b.content.imageUrl || !!b.content.iconName,
   },
   'video-bubble': {
     component: VideoBubbleItemPreview,

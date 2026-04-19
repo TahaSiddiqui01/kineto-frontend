@@ -46,6 +46,7 @@ export const BlockItem = React.memo(function BlockItem({ block, nodeId }: BlockI
   );
 
   const handleDragEnd = useCallback(() => setActiveDragBlock(null), [setActiveDragBlock]);
+  const hideDynamicIcon = block.type === 'image-bubble' && hasContent; // Hide icon if it's an image bubble with content and the image or icon will be shown in the preview
 
   return (
     <div
@@ -58,7 +59,7 @@ export const BlockItem = React.memo(function BlockItem({ block, nodeId }: BlockI
           : 'bg-[#1c1d20] border-[#2e2f33] hover:border-[#3e3f43]'
         }`}
     >
-      {def && (
+      {def && !hideDynamicIcon && (
         <span className="shrink-0">
           <DynamicIcon name={def.iconName} color={def.color} />
         </span>
