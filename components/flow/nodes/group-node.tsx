@@ -2,7 +2,6 @@
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
-import * as LucideIcons from 'lucide-react';
 import { Trash2 } from 'lucide-react';
 import { useShallow } from 'zustand/react/shallow';
 import { BlockItem } from './block-item';
