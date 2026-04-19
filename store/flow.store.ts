@@ -160,6 +160,8 @@ export const useFlowStore = create<FlowStore>()(
                                 ? NodeManager.removeBlockFromNode(n as GroupFlowNode, blockId)
                                 : n
                         ),
+                        selectedBlockId: get().selectedBlockId === blockId ? null : get().selectedBlockId,
+                        selectedBlockNodeId: get().selectedBlockNodeId === nodeId ? null : get().selectedBlockNodeId,
                     }),
                     false,
                     'removeBlockFromNode'

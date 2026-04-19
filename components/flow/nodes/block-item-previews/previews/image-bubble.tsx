@@ -16,6 +16,9 @@ export function ImageBubbleItemPreview({ block }: BlockItemPreviewProps) {
   const iconName = block.content.iconName as string | undefined;
   const iconColor = (block.content.iconColor as string | undefined) ?? '#e2e4e8';
 
+
+  console.log("==========> Block Content: ", block.type, block.content);
+
   const label = alt || (iconName ? iconName.replace(/([A-Z])/g, ' $1').trim() : 'Image');
 
   return (
