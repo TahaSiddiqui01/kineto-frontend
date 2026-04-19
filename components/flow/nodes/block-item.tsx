@@ -3,7 +3,7 @@
 import React, { useCallback } from 'react';
 import { X } from 'lucide-react';
 import { useShallow } from 'zustand/react/shallow';
-import type { Block } from '@/types/flow';
+import type { Block, BlockType } from '@/types/flow';
 import { NodeManager } from '@/lib/flow/node-manager';
 import { useFlowStore } from '@/store/flow.store';
 import { DynamicIcon } from '@/components/ui/icons/dynamic-icon';
@@ -13,6 +13,8 @@ interface BlockItemProps {
   block: Block;
   nodeId: string;
 }
+
+const hiddenDynamicIconTypes: BlockType[] = ['image-bubble', 'audio-bubble']; // Hide dynamic icon for image bubbles since the preview will show the image or icon
 
 export const BlockItem = React.memo(function BlockItem({ block, nodeId }: BlockItemProps) {
   const def = NodeManager.getBlockDefinition(block.type);
@@ -46,7 +48,7 @@ export const BlockItem = React.memo(function BlockItem({ block, nodeId }: BlockI
   );
 
   const handleDragEnd = useCallback(() => setActiveDragBlock(null), [setActiveDragBlock]);
-  const hideDynamicIcon = block.type === 'image-bubble' && hasContent; // Hide icon if it's an image bubble with content and the image or icon will be shown in the preview
+  const hideDynamicIcon = hiddenDynamicIconTypes.includes(block.type) && hasContent; // Hide icon if it's an image bubble with content and the image or icon will be shown in the preview
 
   return (
     <div
