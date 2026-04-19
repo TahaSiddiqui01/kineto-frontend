@@ -5,6 +5,7 @@ import { TextBubbleItemPreview } from './previews/text-bubble';
 import { ImageBubbleItemPreview } from './previews/image-bubble';
 import { VideoBubbleItemPreview } from './previews/video-bubble';
 import { AudioBubbleItemPreview } from './previews/audio-bubble';
+import { EmbedBubbleItemPreview } from './previews/embed-bubble';
 
 export interface BlockItemPreviewEntry {
   component: ComponentType<BlockItemPreviewProps>;
@@ -27,5 +28,9 @@ export const BLOCK_ITEM_PREVIEW_REGISTRY: Partial<Record<BlockType, BlockItemPre
   'audio-bubble': {
     component: AudioBubbleItemPreview,
     hasContent: (b) => !!b.content.audioUrl,
+  },
+  'embed-bubble': {
+    component: EmbedBubbleItemPreview,
+    hasContent: (b) => !!b.content.embedUrl,
   },
 };
