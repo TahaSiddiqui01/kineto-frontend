@@ -10,6 +10,7 @@ export type BubbleBlockType =
 export type InputBlockType =
   | 'text-input'
   | 'number-input'
+  | 'audio-input'
   | 'email-input'
   | 'website-input'
   | 'date-input'

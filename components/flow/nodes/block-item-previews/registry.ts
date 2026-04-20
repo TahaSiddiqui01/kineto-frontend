@@ -6,6 +6,9 @@ import { ImageBubbleItemPreview } from './previews/image-bubble';
 import { VideoBubbleItemPreview } from './previews/video-bubble';
 import { AudioBubbleItemPreview } from './previews/audio-bubble';
 import { EmbedBubbleItemPreview } from './previews/embed-bubble';
+import { TextInputItemPreview } from './previews/text-input';
+import { NumberInputItemPreview } from './previews/number-input';
+import { AudioInputItemPreview } from './previews/audio-input';
 
 export interface BlockItemPreviewEntry {
   component: ComponentType<BlockItemPreviewProps>;
@@ -32,5 +35,17 @@ export const BLOCK_ITEM_PREVIEW_REGISTRY: Partial<Record<BlockType, BlockItemPre
   'embed-bubble': {
     component: EmbedBubbleItemPreview,
     hasContent: (b) => !!b.content.embedUrl,
+  },
+  'text-input': {
+    component: TextInputItemPreview,
+    hasContent: (b) => !!b.content.placeholder || !!b.content.buttonLabel,
+  },
+  'number-input': {
+    component: NumberInputItemPreview,
+    hasContent: (b) => !!b.content.placeholder || !!b.content.buttonLabel,
+  },
+  'audio-input': {
+    component: AudioInputItemPreview,
+    hasContent: (b) => !!b.content.audioUrl,
   },
 };

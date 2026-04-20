@@ -11,6 +11,7 @@ export const BLOCK_DEFINITIONS: BlockDefinition[] = [
   // ── Inputs ───────────────────────────────────────────────────────────────────
   { type: 'text-input',       label: 'Text',       category: 'inputs', iconName: 'Type',       color: '#f97316' },
   { type: 'number-input',     label: 'Number',     category: 'inputs', iconName: 'Hash',        color: '#ef4444' },
+  { type: 'audio-input',      label: 'Audio',      category: 'inputs', iconName: 'Headphones', color: '#ef4444' },
   { type: 'email-input',      label: 'Email',      category: 'inputs', iconName: 'Mail',        color: '#ef4444' },
   { type: 'website-input',    label: 'Website',    category: 'inputs', iconName: 'Link',        color: '#f97316' },
   { type: 'date-input',       label: 'Date',       category: 'inputs', iconName: 'Calendar',   color: '#ef4444' },

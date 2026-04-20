@@ -1,0 +1,17 @@
+export const CURRENCY_CODES = [
+  { value: 'USD', label: 'USD — US Dollar' },
+  { value: 'EUR', label: 'EUR — Euro' },
+  { value: 'GBP', label: 'GBP — British Pound' },
+  { value: 'JPY', label: 'JPY — Japanese Yen' },
+  { value: 'CAD', label: 'CAD — Canadian Dollar' },
+  { value: 'AUD', label: 'AUD — Australian Dollar' },
+  { value: 'CHF', label: 'CHF — Swiss Franc' },
+  { value: 'CNY', label: 'CNY — Chinese Yuan' },
+  { value: 'INR', label: 'INR — Indian Rupee' },
+  { value: 'BRL', label: 'BRL — Brazilian Real' },
+  { value: 'MXN', label: 'MXN — Mexican Peso' },
+  { value: 'KRW', label: 'KRW — South Korean Won' },
+  { value: 'SGD', label: 'SGD — Singapore Dollar' },
+  { value: 'AED', label: 'AED — UAE Dirham' },
+  { value: 'SAR', label: 'SAR — Saudi Riyal' },
+];
