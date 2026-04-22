@@ -11,27 +11,6 @@ export interface ButtonItem {
 const inputClass =
   'w-full bg-[#1c1d20] border border-[#2e2f33] rounded-lg text-[#e2e4e8] text-[13px] outline-none px-2.5 py-[7px] transition-colors focus:border-blue-500 placeholder:text-gray-600';
 
-function makeInserter(
-  ref: React.RefObject<HTMLInputElement | null>,
-  getValue: () => string,
-  setValue: (v: string) => void,
-) {
-  return (varName: string) => {
-    const token = `{{${varName}}}`;
-    const cur = getValue();
-    const el = ref.current;
-    if (!el) { setValue(cur + token); return; }
-    const start = el.selectionStart ?? cur.length;
-    const end = el.selectionEnd ?? cur.length;
-    setValue(cur.slice(0, start) + token + cur.slice(end));
-    requestAnimationFrame(() => {
-      el.focus();
-      const pos = start + token.length;
-      el.setSelectionRange(pos, pos);
-    });
-  };
-}
-
 export function ButtonItemRow({
   item,
   index,
@@ -49,12 +28,38 @@ export function ButtonItemRow({
   const valueRef = useRef<HTMLInputElement>(null);
 
   const onInsertText = useCallback(
-    makeInserter(textRef, () => item.text, (v) => onUpdate({ ...item, text: v })),
+    (varName: string) => {
+      const token = `{{${varName}}}`;
+      const cur = item.text;
+      const el = textRef.current;
+      if (!el) { onUpdate({ ...item, text: cur + token }); return; }
+      const start = el.selectionStart ?? cur.length;
+      const end = el.selectionEnd ?? cur.length;
+      onUpdate({ ...item, text: cur.slice(0, start) + token + cur.slice(end) });
+      requestAnimationFrame(() => {
+        el.focus();
+        const pos = start + token.length;
+        el.setSelectionRange(pos, pos);
+      });
+    },
     [item, onUpdate],
   );
 
   const onInsertValue = useCallback(
-    makeInserter(valueRef, () => item.internalValue ?? '', (v) => onUpdate({ ...item, internalValue: v })),
+    (varName: string) => {
+      const token = `{{${varName}}}`;
+      const cur = item.internalValue ?? '';
+      const el = valueRef.current;
+      if (!el) { onUpdate({ ...item, internalValue: cur + token }); return; }
+      const start = el.selectionStart ?? cur.length;
+      const end = el.selectionEnd ?? cur.length;
+      onUpdate({ ...item, internalValue: cur.slice(0, start) + token + cur.slice(end) });
+      requestAnimationFrame(() => {
+        el.focus();
+        const pos = start + token.length;
+        el.setSelectionRange(pos, pos);
+      });
+    },
     [item, onUpdate],
   );
 

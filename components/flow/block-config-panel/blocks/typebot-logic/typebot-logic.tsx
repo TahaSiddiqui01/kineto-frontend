@@ -19,24 +19,26 @@ export function TypebotLogicConfig({ block, onChange }: BlockConfigProps) {
 
   const workspaceId = useAuthStore(useShallow((s) => s.currentWorkspace?.id));
 
-  const [bots, setBots] = useState<Bot[]>([]);
-  const [loading, setLoading] = useState(false);
+  // null = still loading, Bot[] = fetch complete
+  const [bots, setBots] = useState<Bot[] | null>(null);
 
   useEffect(() => {
     if (!workspaceId) return;
-    setLoading(true);
+    let cancelled = false;
     botService
       .getBots(workspaceId)
-      .then((res) => setBots(res.data))
-      .catch(() => setBots([]))
-      .finally(() => setLoading(false));
+      .then((res) => { if (!cancelled) setBots(res.data); })
+      .catch(() => { if (!cancelled) setBots([]); });
+    return () => { cancelled = true; };
   }, [workspaceId]);
 
   function handleBotChange(val: string) {
     onChange({ typebotId: val === CLEAR_SENTINEL ? undefined : val });
   }
 
-  const selectedBot = bots.find((b) => b.id === typebotId);
+  const loading = !!workspaceId && bots === null;
+  const botList = bots ?? [];
+  const selectedBot = botList.find((b) => b.id === typebotId);
 
   return (
     <div className="flex flex-col gap-4">
@@ -44,16 +46,16 @@ export function TypebotLogicConfig({ block, onChange }: BlockConfigProps) {
         <label className="text-xs font-medium text-gray-400">Linked bot</label>
         {loading ? (
           <div className="w-full bg-[#1c1d20] border border-[#2e2f33] rounded-lg px-2.5 py-[7px] text-[13px] text-gray-600 animate-pulse">
-            Loading bots…
+            Loading bots&hellip;
           </div>
-        ) : bots.length === 0 ? (
+        ) : botList.length === 0 ? (
           <p className="text-[11px] text-gray-500 bg-[#1c1d20] rounded-lg px-2.5 py-2 border border-[#2e2f33]">
             No bots found in this workspace.
           </p>
         ) : (
           <Select value={typebotId ?? ''} onValueChange={handleBotChange}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select a bot…">
+              <SelectValue placeholder="Select a bot&hellip;">
                 {selectedBot && (
                   <span className="text-[#e2e4e8] text-[13px]">{selectedBot.name}</span>
                 )}
@@ -63,7 +65,7 @@ export function TypebotLogicConfig({ block, onChange }: BlockConfigProps) {
               {typebotId && (
                 <SelectItem value={CLEAR_SENTINEL}>Clear selection</SelectItem>
               )}
-              {bots.map((bot) => (
+              {botList.map((bot) => (
                 <SelectItem key={bot.id} value={bot.id}>
                   {bot.name}
                 </SelectItem>
@@ -89,7 +91,7 @@ export function TypebotLogicConfig({ block, onChange }: BlockConfigProps) {
         </label>
       </div>
       <p className="text-[10px] text-gray-600 -mt-2">
-        Consolidates responses from the linked bot into this bot's results.
+        Consolidates responses from the linked bot into this bot&apos;s results.
       </p>
     </div>
   );
