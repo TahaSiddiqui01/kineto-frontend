@@ -6,6 +6,7 @@ import { FlowNavbar } from '@/components/flow/navbar';
 import { NodePalette } from '@/components/flow/node-palette';
 import { FlowCanvas } from '@/components/flow/canvas';
 import { BlockConfigPanel } from '@/components/flow/block-config-panel';
+import { PreviewPanel } from '@/components/flow/preview/preview-panel';
 
 interface BotCanvasProps {
   botName?: string;
@@ -40,6 +41,9 @@ export default function BotCanvas({ botName }: BotCanvasProps) {
 
         {/* Block config panel – overlays the sidebar area */}
         <BlockConfigPanel />
+
+        {/* Preview panel – slides in from the right */}
+        <PreviewPanel />
       </div>
     </div>
   );

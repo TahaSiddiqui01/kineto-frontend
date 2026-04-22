@@ -300,6 +300,10 @@ export const useFlowStore = create<FlowStore>()(
             setVariablePanelOpen: (open: boolean) =>
                 set({ variablePanelOpen: open }, false, 'setVariablePanelOpen'),
 
+            previewOpen: false,
+            setPreviewOpen: (open: boolean) =>
+                set({ previewOpen: open }, false, 'setPreviewOpen'),
+
         }),
         { name: 'flow-store' }
     )

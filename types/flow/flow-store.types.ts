@@ -65,4 +65,8 @@ export interface FlowStore {
     // Variables panel visibility
     variablePanelOpen: boolean;
     setVariablePanelOpen: (open: boolean) => void;
+
+    // Preview panel
+    previewOpen: boolean;
+    setPreviewOpen: (open: boolean) => void;
 }

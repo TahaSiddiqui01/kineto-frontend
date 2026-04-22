@@ -9,10 +9,12 @@ import {
   HelpCircle,
   Share2,
   Play,
-  ChevronDown
+  ChevronDown,
+  EyeIcon
 } from 'lucide-react';
 import { useFlowStore } from '@/store/flow.store';
 import { useShallow } from 'zustand/react/shallow';
+import { Button } from '@/components/ui/button';
 
 type NavTab = 'flow' | 'theme' | 'settings' | 'share' | 'results';
 
@@ -29,8 +31,8 @@ export function FlowNavbar({
 }: FlowNavbarProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<NavTab>('flow');
-  const { undo, redo, canUndo, canRedo } = useFlowStore(
-    useShallow((s) => ({ undo: s.undo, redo: s.redo, canUndo: s.canUndo, canRedo: s.canRedo }))
+  const { undo, redo, canUndo, canRedo, setPreviewOpen } = useFlowStore(
+    useShallow((s) => ({ undo: s.undo, redo: s.redo, canUndo: s.canUndo, canRedo: s.canRedo, setPreviewOpen: s.setPreviewOpen }))
   );
 
   return (
@@ -93,7 +95,7 @@ export function FlowNavbar({
             { id: 'results', label: 'Results' },
           ] as { id: NavTab; label: string }[]
         ).map(({ id, label }) => (
-          <button
+          <Button
             key={id}
             onClick={() => setActiveTab(id)}
             className="rounded-lg transition-colors"
@@ -106,7 +108,7 @@ export function FlowNavbar({
             }}
           >
             {label}
-          </button>
+          </Button>
         ))}
       </nav>
 
@@ -117,7 +119,8 @@ export function FlowNavbar({
           <span style={{ fontSize: 13 }}>Share</span>
         </NavBtn>
 
-        <button
+        <Button
+          onClick={() => setPreviewOpen(true)}
           className="flex items-center gap-1.5 rounded-lg transition-colors hover:bg-white/5"
           style={{
             padding: '5px 13px',
@@ -125,29 +128,29 @@ export function FlowNavbar({
             color: '#d4d5d7',
             border: '1px solid #363839',
           }}
-          title="Test"
+          title="Preview"
         >
-          <Play size={13} style={{ color: '#6b7280' }} />
-          Test
-        </button>
+          <EyeIcon size={13} style={{ color: '#6b7280' }} />
+          Preview
+        </Button>
 
         <div
-          className="flex items-center rounded-lg overflow-hidden"
-          style={{ background: '#f36b25' }}
+          className="flex items-center rounded-lg overflow-hidden bg-white/10 "
+          // style={{ background: '#f36b25' }}
         >
-          <button
+          <Button
             className="hover:bg-black/10 transition-colors text-white"
             style={{ padding: '6px 16px', fontSize: 13, fontWeight: 600 }}
           >
             Publish
-          </button>
+          </Button>
           <div style={{ width: 1, alignSelf: 'stretch', background: 'rgba(0,0,0,0.2)' }} />
-          <button
+          <Button
             className="hover:bg-black/10 transition-colors text-white"
             style={{ padding: '6px 8px' }}
           >
             <ChevronDown size={13} />
-          </button>
+          </Button>
         </div>
       </div>
     </header>
@@ -170,7 +173,7 @@ function NavBtn({ children, onClick, title, className = '', disabled = false }: 
       disabled={disabled}
       className={`flex items-center justify-center rounded-lg p-1.5 transition-colors ${disabled
           ? 'opacity-25 cursor-not-allowed'
-          : 'hover:bg-white/[0.06]'
+          : 'hover:bg-white/6'
         } ${className}`}
       style={{ color: '#6b7280' }}
     >
