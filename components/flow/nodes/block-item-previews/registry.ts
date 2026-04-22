@@ -20,6 +20,19 @@ import { PaymentInputItemPreview } from './previews/payment-input';
 import { RatingInputItemPreview } from './previews/rating-input';
 import { FileInputItemPreview } from './previews/file-input';
 import { CardsInputItemPreview } from './previews/cards-input';
+import { SetVariableItemPreview } from './previews/set-variable';
+import { ConditionItemPreview } from './previews/condition';
+import { RedirectItemPreview } from './previews/redirect';
+import { ScriptItemPreview } from './previews/script';
+import { TypebotLogicItemPreview } from './previews/typebot-logic';
+import { WaitItemPreview } from './previews/wait';
+import { AbTestItemPreview } from './previews/ab-test';
+import { WebhookItemPreview } from './previews/webhook';
+import { JumpItemPreview } from './previews/jump';
+import { ReturnItemPreview } from './previews/return';
+import { CommandEventItemPreview } from './previews/command-event';
+import { ReplyEventItemPreview } from './previews/reply-event';
+import { InvalidEventItemPreview } from './previews/invalid-event';
 
 export interface BlockItemPreviewEntry {
   component: ComponentType<BlockItemPreviewProps>;
@@ -111,5 +124,65 @@ export const BLOCK_ITEM_PREVIEW_REGISTRY: Partial<Record<BlockType, BlockItemPre
       const cards = b.content.cards as Array<unknown> | undefined;
       return !!cards && cards.length > 0;
     },
+  },
+  // logic
+  'set-variable': {
+    component: SetVariableItemPreview,
+    hasContent: (b) => !!b.content.variable,
+  },
+  'condition': {
+    component: ConditionItemPreview,
+    hasContent: (b) => {
+      const c = b.content.conditions as Array<{ variableName?: string }> | undefined;
+      return !!c?.some((i) => i.variableName);
+    },
+  },
+  'redirect': {
+    component: RedirectItemPreview,
+    hasContent: (b) => !!b.content.url,
+  },
+  'script': {
+    component: ScriptItemPreview,
+    hasContent: (b) => !!b.content.code,
+  },
+  'typebot-logic': {
+    component: TypebotLogicItemPreview,
+    hasContent: (b) => !!b.content.typebotId,
+  },
+  'wait': {
+    component: WaitItemPreview,
+    hasContent: (b) => !!b.content.seconds,
+  },
+  'ab-test': {
+    component: AbTestItemPreview,
+    hasContent: (b) => b.content.aPercent !== undefined,
+  },
+  'webhook': {
+    component: WebhookItemPreview,
+    hasContent: (b) => !!b.content.saveResultTo,
+  },
+  'jump': {
+    component: JumpItemPreview,
+    hasContent: (b) => !!b.content.targetGroupId,
+  },
+  'return': {
+    component: ReturnItemPreview,
+    hasContent: (_b) => false,
+  },
+  // events
+  'command-event': {
+    component: CommandEventItemPreview,
+    hasContent: (b) => !!b.content.command,
+  },
+  'reply-event': {
+    component: ReplyEventItemPreview,
+    hasContent: (b) => {
+      const k = b.content.keywords as Array<{ value: string }> | undefined;
+      return !!k?.some((i) => i.value.trim());
+    },
+  },
+  'invalid-event': {
+    component: InvalidEventItemPreview,
+    hasContent: (_b) => false,
   },
 };

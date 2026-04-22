@@ -6,7 +6,12 @@
       "Bash(mkdir:*)",
       "Bash(wsl:*)",
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); deps={**d.get\\('dependencies',{}\\), **d.get\\('devDependencies',{}\\)}; [print\\(k,v\\) for k,v in sorted\\(deps.items\\(\\)\\) if any\\(x in k for x in ['radix','day-picker','date','phone','country','calendar','react-hook']\\)]\")",
-      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); deps={**d.get\\('dependencies',{}\\), **d.get\\('devDependencies',{}\\)}; [print\\(k,v\\) for k,v in sorted\\(deps.items\\(\\)\\)]\")"
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); deps={**d.get\\('dependencies',{}\\), **d.get\\('devDependencies',{}\\)}; [print\\(k,v\\) for k,v in sorted\\(deps.items\\(\\)\\)]\")",
+      "Bash(tree -L 3 \"//wsl.localhost/Ubuntu/home/home/projects/personal/kineto/kineto-frontend\" -I 'node_modules|.next|.git')",
+      "Read(///wsl.localhost/Ubuntu/home/home/projects/personal/kineto/**)",
+      "Bash(grep -E \"\\\\.tsx$|^d\")",
+      "Bash(xargs grep -l \"logic\\\\|event\")",
+      "WebFetch(domain:docs.typebot.com)"
     ]
   }
 }

@@ -20,6 +20,19 @@ import { PaymentInputConfig } from './blocks/payment-input/payment-input';
 import { RatingInputConfig } from './blocks/rating-input/rating-input';
 import { FileInputConfig } from './blocks/file-input/file-input';
 import { CardsInputConfig } from './blocks/cards-input/cards-input';
+import { SetVariableConfig } from './blocks/set-variable/set-variable';
+import { ConditionConfig } from './blocks/condition/condition';
+import { RedirectConfig } from './blocks/redirect/redirect';
+import { ScriptConfig } from './blocks/script/script';
+import { TypebotLogicConfig } from './blocks/typebot-logic/typebot-logic';
+import { WaitConfig } from './blocks/wait/wait';
+import { AbTestConfig } from './blocks/ab-test/ab-test';
+import { WebhookConfig } from './blocks/webhook/webhook';
+import { JumpConfig } from './blocks/jump/jump';
+import { ReturnConfig } from './blocks/return/return';
+import { CommandEventConfig } from './blocks/command-event/command-event';
+import { ReplyEventConfig } from './blocks/reply-event/reply-event';
+import { InvalidEventConfig } from './blocks/invalid-event/invalid-event';
 
 export const BLOCK_CONFIG_REGISTRY: Partial<Record<BlockType, ComponentType<BlockConfigProps>>> = {
   // bubbles
@@ -43,6 +56,21 @@ export const BLOCK_CONFIG_REGISTRY: Partial<Record<BlockType, ComponentType<Bloc
   'rating-input': RatingInputConfig,
   'file-input': FileInputConfig,
   'cards-input': CardsInputConfig,
+  // logic
+  'set-variable': SetVariableConfig,
+  'condition': ConditionConfig,
+  'redirect': RedirectConfig,
+  'script': ScriptConfig,
+  'typebot-logic': TypebotLogicConfig,
+  'wait': WaitConfig,
+  'ab-test': AbTestConfig,
+  'webhook': WebhookConfig,
+  'jump': JumpConfig,
+  'return': ReturnConfig,
+  // events
+  'command-event': CommandEventConfig,
+  'reply-event': ReplyEventConfig,
+  'invalid-event': InvalidEventConfig,
 };
 
 export const DEFAULT_BLOCK_CONFIG = TextBubbleConfig;
