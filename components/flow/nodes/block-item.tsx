@@ -56,10 +56,12 @@ export const BlockItem = React.memo(function BlockItem({ block, nodeId }: BlockI
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onClick={(e) => { e.stopPropagation(); setSelectedBlock(block.id, nodeId); }}
-      className={`group relative flex items-center gap-2.5 nodrag cursor-pointer select-none rounded-lg px-3 py-2.25 border transition-all ${isSelected
-          ? 'bg-[#1e2535] border-blue-500 shadow-[0_0_0_2px_rgba(59,130,246,0.25)]'
-          : 'bg-[#1c1d20] border-[#2e2f33] hover:border-[#3e3f43]'
-        }`}
+      className="group block-item-hoverable relative flex items-center gap-2.5 nodrag cursor-pointer select-none rounded-lg px-3 py-2.25 border transition-all"
+      style={{
+        background: isSelected ? 'var(--block-item-bg-selected)' : 'var(--block-item-bg)',
+        borderColor: isSelected ? 'rgba(59,130,246,0.6)' : 'var(--block-item-border)',
+        boxShadow: isSelected ? '0 0 0 2px rgba(59,130,246,0.25)' : 'none',
+      }}
     >
       {def && !hideDynamicIcon && (
         <span className="shrink-0">

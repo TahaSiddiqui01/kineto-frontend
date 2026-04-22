@@ -21,12 +21,12 @@ export function PreviewPanel() {
       <SheetContent
         side="right"
         className="flex flex-col p-0 w-[380px] sm:w-[420px]"
-        style={{ background: '#1a1b1d', borderLeft: '1px solid #2a2b2d' }}
+        style={{ background: 'var(--canvas-surface)', borderLeft: '1px solid var(--canvas-border)' }}
       >
         {/* Header */}
         <SheetHeader
           className="px-4 pt-5 pb-4 shrink-0"
-          style={{ borderBottom: '1px solid #2a2b2d' }}
+          style={{ borderBottom: '1px solid var(--canvas-border)' }}
         >
           <div className="flex items-center gap-2.5">
             <div
@@ -36,10 +36,10 @@ export function PreviewPanel() {
               <Eye className="h-3.5 w-3.5" style={{ color: '#818cf8' }} />
             </div>
             <div className="flex-1 min-w-0">
-              <SheetTitle className="text-sm font-semibold" style={{ color: '#e2e4e8' }}>
+              <SheetTitle className="text-sm font-semibold" style={{ color: 'var(--node-title-color)' }}>
                 Preview
               </SheetTitle>
-              <p className="text-xs mt-0.5" style={{ color: '#6b7280' }}>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--canvas-icon)' }}>
                 Simulate the conversation
               </p>
             </div>
@@ -47,7 +47,7 @@ export function PreviewPanel() {
         </SheetHeader>
 
         {/* Platform selector */}
-        <div className="px-3 py-3 shrink-0" style={{ borderBottom: '1px solid #2a2b2d' }}>
+        <div className="px-3 py-3 shrink-0" style={{ borderBottom: '1px solid var(--canvas-border)' }}>
           <PlatformSelector value={platform} onChange={setPlatform} />
         </div>
 

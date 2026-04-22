@@ -21,15 +21,16 @@ import { FlowEdgeComponent } from '../edges/custom-edge';
 import { useFlowStore } from '@/store/flow.store';
 import type { BlockType } from '@/types/flow';
 import { VariablesPanel } from '../variables/variable-panel';
+import { useTheme } from '@/components/providers/theme-provider';
 
 const NODE_TYPES = { group: GroupNode, start: StartNode } as const;
 const EDGE_TYPES = { 'flow-edge': FlowEdgeComponent } as const;
 const DEFAULT_VIEWPORT = { zoom: 1, x: 120, y: 140 };
 const PRO_OPTIONS = { hideAttribution: true } as const;
 const DEFAULT_EDGE_OPTIONS = { type: 'flow-edge' } as const;
-const CANVAS_STYLE = { background: '#111213' } as const;
 
 export function FlowCanvas() {
+  const { resolvedTheme } = useTheme();
   const {
     nodes, edges, onNodesChange, onEdgesChange, onConnect, addGroupNode,
     undo, redo, setViewport, clearSelectedBlock,
@@ -111,7 +112,8 @@ export function FlowCanvas() {
         onDrop={onDrop}
         onMoveEnd={handleMoveEnd}
         onPaneClick={clearSelectedBlock}
-        style={CANVAS_STYLE}
+        style={{ background: 'var(--canvas-bg)' }}
+        colorMode={resolvedTheme}
         minZoom={0.1}
         maxZoom={5}
         defaultViewport={DEFAULT_VIEWPORT}
@@ -122,8 +124,8 @@ export function FlowCanvas() {
       >
         <Background
           variant={BackgroundVariant.Dots}
-          color="#2a2b2d"
-          bgColor="#111213"
+          color="var(--canvas-dot)"
+          bgColor="var(--canvas-bg)"
           gap={16}
           size={1.2}
         />

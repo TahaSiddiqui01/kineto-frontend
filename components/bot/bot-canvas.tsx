@@ -18,7 +18,7 @@ export default function BotCanvas({ botName }: BotCanvasProps) {
   return (
     <div
       className="flex flex-col h-screen w-screen overflow-hidden"
-      style={{ background: '#111213' }}
+      style={{ background: 'var(--canvas-bg)' }}
     >
       <FlowNavbar
         botName={botName}

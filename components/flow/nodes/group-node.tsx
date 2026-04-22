@@ -13,7 +13,7 @@ const HANDLE: React.CSSProperties = {
   width: 13,
   height: 13,
   background: '#f36b25',
-  border: '2.5px solid #111213',
+  border: '2.5px solid var(--node-handle-border)',
   borderRadius: '50%',
   cursor: 'crosshair',
   zIndex: 10,
@@ -165,11 +165,11 @@ export const GroupNode = React.memo(
 
   const cardStyle = useMemo<React.CSSProperties>(
     () => ({
-      background: '#252628',
-      border: `1.5px solid ${selected || isDragOver ? '#f36b25' : '#3a3b3e'}`,
+      background: 'var(--node-card-bg)',
+      border: `1.5px solid ${selected || isDragOver ? '#f36b25' : 'var(--node-card-border)'}`,
       boxShadow: selected
-        ? '0 0 0 3px rgba(243,107,37,0.18), 0 8px 32px rgba(0,0,0,0.55)'
-        : '0 4px 20px rgba(0,0,0,0.45)',
+        ? 'var(--node-card-shadow-selected)'
+        : 'var(--node-card-shadow)',
       transition: 'border-color 0.12s, box-shadow 0.12s',
       overflow: 'hidden',
     }),
@@ -203,14 +203,14 @@ export const GroupNode = React.memo(
         {/* Header */}
         <div
           className="flex items-center gap-2 px-3 py-2.5"
-          style={{ borderBottom: '1px solid #363839' }}
+          style={{ borderBottom: '1px solid var(--node-card-header-border)' }}
         >
           <input
             ref={inputRef}
             value={data.title}
             onChange={(e) => updateNodeTitle(id, e.target.value)}
             className="flex-1 bg-transparent outline-none min-w-0 nodrag"
-            style={{ fontSize: 14, fontWeight: 700, color: '#ffffff', letterSpacing: '-0.01em' }}
+            style={{ fontSize: 14, fontWeight: 700, color: 'var(--node-title-color)', letterSpacing: '-0.01em' }}
             placeholder="Group name"
             onMouseDown={(e) => e.stopPropagation()}
           />
@@ -268,8 +268,8 @@ export const GroupNode = React.memo(
                 className="flex items-center justify-center rounded-lg border border-dashed"
                 style={{
                   padding: '14px 8px',
-                  borderColor: '#3a3b3e',
-                  color: '#4b5563',
+                  borderColor: 'var(--node-empty-border)',
+                  color: 'var(--node-empty-text)',
                   fontSize: 11,
                 }}
               >

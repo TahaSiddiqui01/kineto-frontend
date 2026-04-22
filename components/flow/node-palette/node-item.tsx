@@ -41,16 +41,21 @@ export function NodeItem({ definition }: NodeItemProps) {
       draggable={!definition.isDisabled}
       onDragStart={definition.isDisabled ? () => {} : handleDragStart}
       onDragEnd={definition.isDisabled ? () => {} : handleDragEnd}
-      className={cn("flex items-center gap-1.5 rounded-lg select-none cursor-grab active:cursor-grabbing transition-colors bg-[#1e1f22] border border-[#2e3033] px-2 py-2.5", {
-        "hover:bg-white/6": !definition.isDisabled
+      className={cn("flex items-center gap-1.5 rounded-lg select-none cursor-grab active:cursor-grabbing transition-colors border px-2 py-2.5", {
+        "hover:brightness-95 dark:hover:brightness-125": !definition.isDisabled
       })}
+      style={{
+        background: 'var(--canvas-surface-raised)',
+        borderColor: 'var(--canvas-border-subtle)',
+      }}
       title={definition.label}
       aria-disabled={definition.isDisabled}
     >
       <DynamicIcon isDisabled={definition.isDisabled!} name={definition.iconName} color={definition.color} />
-      <span className={cn("flex-1 truncate text-sm text-[#c8cace]", {
-        "text-[#2d2e2d]": definition.isDisabled
-      })}>
+      <span
+        className="flex-1 truncate text-sm"
+        style={{ color: definition.isDisabled ? 'var(--canvas-border-subtle)' : 'var(--foreground)' }}
+      >
         {definition.label}
       </span>
       {definition.isPro && (

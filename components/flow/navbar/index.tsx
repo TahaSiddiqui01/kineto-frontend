@@ -38,7 +38,7 @@ export function FlowNavbar({
   return (
     <header
       className="flex items-center px-2 h-12 shrink-0 z-20"
-      style={{ background: '#1a1b1d', borderBottom: '1px solid #2a2b2d' }}
+      style={{ background: 'var(--canvas-surface)', borderBottom: '1px solid var(--canvas-border)' }}
     >
       {/* ── Left group ─────────────────────────────── */}
       <div className="flex items-center gap-0.5 flex-1 min-w-0">
@@ -52,10 +52,10 @@ export function FlowNavbar({
 
         {/* Bot name */}
         <div className="flex items-center gap-1.5 mx-2 px-2 py-1 rounded-lg">
-          <span style={{ fontSize: 14, fontWeight: 600, color: '#e2e4e8' }}>{botName}</span>
+          <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--node-title-color)' }}>{botName}</span>
         </div>
 
-        <div className="mx-1 h-4 w-px" style={{ background: '#2a2b2d' }} />
+        <div className="mx-1 h-4 w-px" style={{ background: 'var(--canvas-border)' }} />
 
         {/* Undo */}
         <NavBtn
@@ -75,7 +75,7 @@ export function FlowNavbar({
           <Redo2 size={15} />
         </NavBtn>
 
-        <div className="mx-1 h-4 w-px" style={{ background: '#2a2b2d' }} />
+        <div className="mx-1 h-4 w-px" style={{ background: 'var(--canvas-border)' }} />
 
         {/* Help */}
         <NavBtn title="Help" className="gap-1.5 px-2.5">
@@ -175,7 +175,7 @@ function NavBtn({ children, onClick, title, className = '', disabled = false }: 
           ? 'opacity-25 cursor-not-allowed'
           : 'hover:bg-white/6'
         } ${className}`}
-      style={{ color: '#6b7280' }}
+      style={{ color: 'var(--canvas-icon)' }}
     >
       {children}
     </button>

@@ -9,7 +9,7 @@ const HANDLE: React.CSSProperties = {
   width: 13,
   height: 13,
   background: '#f36b25',
-  border: '2.5px solid #111213',
+  border: '2.5px solid var(--node-handle-border)',
   borderRadius: '50%',
   cursor: 'crosshair',
   zIndex: 10,
@@ -23,15 +23,15 @@ export const StartNode = React.memo(
         <div
           className="flex items-center gap-2"
           style={{
-            background: '#252628',
-            border: '1.5px solid #3a3b3e',
+            background: 'var(--node-card-bg)',
+            border: '1.5px solid var(--node-card-border)',
             borderRadius: 999,
             padding: '8px 16px 8px 12px',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+            boxShadow: 'var(--node-card-shadow)',
             whiteSpace: 'nowrap',
             fontSize: 14,
             fontWeight: 600,
-            color: '#e8e9ea',
+            color: 'var(--node-title-color)',
           }}
         >
           <Flag size={13} style={{ color: '#f36b25', flexShrink: 0 }} />

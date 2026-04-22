@@ -49,6 +49,34 @@
 }
 
 :root {
+  /* ── Canvas surface colours (light) ─────────────────────────────────────── */
+  --canvas-bg:             #f0f2f5;
+  --canvas-surface:        #ffffff;
+  --canvas-surface-raised: #f8f9fa;
+  --canvas-border:         #e5e7eb;
+  --canvas-border-subtle:  #d1d5db;
+  --canvas-icon:           #6b7280;
+  --canvas-icon-hover:     #111827;
+  --canvas-dot:            #c9cdd5;
+
+  /* ── Node card (light) ───────────────────────────────────────────────────── */
+  --node-card-bg:              #ffffff;
+  --node-card-border:          #e2e4e8;
+  --node-card-header-border:   #ebebeb;
+  --node-card-shadow:          0 4px 20px rgba(0,0,0,0.08);
+  --node-card-shadow-selected: 0 0 0 3px rgba(243,107,37,0.18), 0 8px 32px rgba(0,0,0,0.12);
+  --node-title-color:          #111827;
+  --node-muted-color:          #6b7280;
+  --node-empty-border:         #d1d5db;
+  --node-empty-text:           #9ca3af;
+  --node-handle-border:        #f0f2f5;
+
+  /* ── Block item (light) ──────────────────────────────────────────────────── */
+  --block-item-bg:             #f8f9fa;
+  --block-item-bg-selected:    #eff6ff;
+  --block-item-border:         #e5e7eb;
+  --block-item-border-hover:   #d1d5db;
+
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -84,6 +112,34 @@
 }
 
 .dark {
+  /* ── Canvas surface colours (dark) ──────────────────────────────────────── */
+  --canvas-bg:             #111213;
+  --canvas-surface:        #1a1b1d;
+  --canvas-surface-raised: #1c1d20;
+  --canvas-border:         #2a2b2d;
+  --canvas-border-subtle:  #2e2f33;
+  --canvas-icon:           #9ca3af;
+  --canvas-icon-hover:     #e2e8f0;
+  --canvas-dot:            #2e3036;
+
+  /* ── Node card (dark) ────────────────────────────────────────────────────── */
+  --node-card-bg:              #252628;
+  --node-card-border:          #3a3b3e;
+  --node-card-header-border:   #363839;
+  --node-card-shadow:          0 4px 20px rgba(0,0,0,0.45);
+  --node-card-shadow-selected: 0 0 0 3px rgba(243,107,37,0.18), 0 8px 32px rgba(0,0,0,0.55);
+  --node-title-color:          #e8e9ea;
+  --node-muted-color:          #9ca3af;
+  --node-empty-border:         #3a3b3e;
+  --node-empty-text:           #4b5563;
+  --node-handle-border:        #111213;
+
+  /* ── Block item (dark) ───────────────────────────────────────────────────── */
+  --block-item-bg:             #1c1d20;
+  --block-item-bg-selected:    #1e2535;
+  --block-item-border:         #2e2f33;
+  --block-item-border-hover:   #3e3f43;
+
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -129,6 +185,17 @@
   }
 }
 
+/* ── Block item hover ────────────────────────────────────────────────────── */
+
+.block-item-hoverable:hover {
+  border-color: var(--block-item-border-hover) !important;
+}
+
+/* ── ReactFlow node theme rules ─────────────────────────────────────────── */
+
+.light .react-flow__node { color: var(--node-title-color); }
+.dark  .react-flow__node { color: var(--node-title-color); }
+
 /* ── React Flow canvas overrides ─────────────────────────────────────────── */
 
 /* Controls panel wrapper */
@@ -136,8 +203,8 @@
   box-shadow: none !important;
   border-radius: 8px !important;
   overflow: hidden;
-  background: #1a1b1d !important;
-  border: 1px solid #2a2b2d !important;
+  background: var(--canvas-surface) !important;
+  border: 1px solid var(--canvas-border) !important;
   display: flex !important;
   flex-direction: row !important;
   gap: 2px !important;
@@ -160,20 +227,19 @@
 }
 
 .react-flow__controls-button:hover {
-  background: rgba(255, 255, 255, 0.07) !important;
+  background: color-mix(in oklch, var(--canvas-icon) 12%, transparent) !important;
 }
 
-/* SVG icons inside buttons – let them inherit color from the button */
+/* SVG icons inside buttons */
 .react-flow__controls-button svg {
   width: 12px !important;
   height: 12px !important;
-  /* Do NOT set fill here – built-in icons use fill for the + / - shapes */
-  fill: #9ca3af !important;
+  fill: var(--canvas-icon) !important;
   stroke: none !important;
 }
 
 .react-flow__controls-button:hover svg {
-  fill: #e2e8f0 !important;
+  fill: var(--canvas-icon-hover) !important;
 }
 
 /* Handles */
@@ -212,12 +278,12 @@
 /* Custom control buttons that hold lucide icons (stroke-based) */
 .react-flow__controls-button.custom-ctrl svg {
   fill: none !important;
-  stroke: #9ca3af !important;
+  stroke: var(--canvas-icon) !important;
   stroke-width: 2;
 }
 
 .react-flow__controls-button.custom-ctrl:hover svg {
-  stroke: #e2e8f0 !important;
+  stroke: var(--canvas-icon-hover) !important;
 }
 
 /* Group node delete button – hidden until the parent header is hovered */
