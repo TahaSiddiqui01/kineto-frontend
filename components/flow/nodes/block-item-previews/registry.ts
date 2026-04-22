@@ -9,6 +9,17 @@ import { EmbedBubbleItemPreview } from './previews/embed-bubble';
 import { TextInputItemPreview } from './previews/text-input';
 import { NumberInputItemPreview } from './previews/number-input';
 import { AudioInputItemPreview } from './previews/audio-input';
+import { EmailInputItemPreview } from './previews/email-input';
+import { WebsiteInputItemPreview } from './previews/website-input';
+import { DateInputItemPreview } from './previews/date-input';
+import { TimeInputItemPreview } from './previews/time-input';
+import { PhoneInputItemPreview } from './previews/phone-input';
+import { ButtonsInputItemPreview } from './previews/buttons-input';
+import { PicChoiceInputItemPreview } from './previews/pic-choice-input';
+import { PaymentInputItemPreview } from './previews/payment-input';
+import { RatingInputItemPreview } from './previews/rating-input';
+import { FileInputItemPreview } from './previews/file-input';
+import { CardsInputItemPreview } from './previews/cards-input';
 
 export interface BlockItemPreviewEntry {
   component: ComponentType<BlockItemPreviewProps>;
@@ -47,5 +58,58 @@ export const BLOCK_ITEM_PREVIEW_REGISTRY: Partial<Record<BlockType, BlockItemPre
   'audio-input': {
     component: AudioInputItemPreview,
     hasContent: (b) => !!b.content.audioUrl,
+  },
+  'email-input': {
+    component: EmailInputItemPreview,
+    hasContent: (b) => !!b.content.placeholder || !!b.content.buttonLabel,
+  },
+  'website-input': {
+    component: WebsiteInputItemPreview,
+    hasContent: (b) => !!b.content.placeholder || !!b.content.buttonLabel,
+  },
+  'date-input': {
+    component: DateInputItemPreview,
+    hasContent: (b) => !!b.content.format || !!b.content.isRange || !!b.content.withTime,
+  },
+  'time-input': {
+    component: TimeInputItemPreview,
+    hasContent: (b) => !!b.content.format || !!b.content.buttonLabel,
+  },
+  'phone-input': {
+    component: PhoneInputItemPreview,
+    hasContent: (b) => !!b.content.placeholder || !!b.content.buttonLabel || !!b.content.defaultCountry,
+  },
+  'buttons-input': {
+    component: ButtonsInputItemPreview,
+    hasContent: (b) => {
+      const btns = b.content.buttons as Array<{ text: string }> | undefined;
+      return !!btns?.some((btn) => btn.text.trim());
+    },
+  },
+  'pic-choice-input': {
+    component: PicChoiceInputItemPreview,
+    hasContent: (b) => {
+      const items = b.content.items as Array<{ title?: string; imageUrl?: string }> | undefined;
+      return !!items && items.length > 0;
+    },
+  },
+  'payment-input': {
+    component: PaymentInputItemPreview,
+    hasContent: (b) => !!b.content.price || !!b.content.testSecretKey || !!b.content.liveSecretKey,
+  },
+  'rating-input': {
+    component: RatingInputItemPreview,
+    hasContent: (b) => !!b.content.max || !!b.content.ratingType,
+  },
+  'file-input': {
+    component: FileInputItemPreview,
+    hasContent: (b) => !!b.content.fileUrlVariable || !!b.content.submitButtonLabel,
+  },
+  'cards-input': {
+    component: CardsInputItemPreview,
+    hasContent: (b) => {
+      const cards = b.content.cards as Array<unknown> | undefined;
+      return !!cards && cards.length > 0;
+    },
   },
 };

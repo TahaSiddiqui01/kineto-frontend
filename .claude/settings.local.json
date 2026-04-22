@@ -4,7 +4,9 @@
       "Bash(xargs wc:*)",
       "Bash(cat:*)",
       "Bash(mkdir:*)",
-      "Bash(wsl:*)"
+      "Bash(wsl:*)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); deps={**d.get\\('dependencies',{}\\), **d.get\\('devDependencies',{}\\)}; [print\\(k,v\\) for k,v in sorted\\(deps.items\\(\\)\\) if any\\(x in k for x in ['radix','day-picker','date','phone','country','calendar','react-hook']\\)]\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); deps={**d.get\\('dependencies',{}\\), **d.get\\('devDependencies',{}\\)}; [print\\(k,v\\) for k,v in sorted\\(deps.items\\(\\)\\)]\")"
     ]
   }
 }
