@@ -20,7 +20,7 @@ export function PreviewPanel() {
     <Sheet open={previewOpen} onOpenChange={setPreviewOpen}>
       <SheetContent
         side="right"
-        className="flex flex-col p-0 w-[380px] sm:w-[420px]"
+        className="flex flex-col p-0 w-95 sm:w-105"
         style={{ background: 'var(--canvas-surface)', borderLeft: '1px solid var(--canvas-border)' }}
       >
         {/* Header */}
