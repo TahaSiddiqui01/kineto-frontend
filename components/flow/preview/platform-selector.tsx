@@ -1,3 +1,4 @@
+import { ComponentType } from 'react';
 import type { Platform } from './registry/types';
 
 interface PlatformSelectorProps {
@@ -5,10 +6,10 @@ interface PlatformSelectorProps {
   onChange: (p: Platform) => void;
 }
 
-const PLATFORMS: { id: Platform; label: string; emoji: string; comingSoon?: boolean }[] = [
-  { id: 'website',   label: 'Website',   emoji: '🌐' },
-  { id: 'whatsapp',  label: 'WhatsApp',  emoji: '💬', comingSoon: true },
-  { id: 'instagram', label: 'Instagram', emoji: '📸', comingSoon: true },
+const PLATFORMS: { id: Platform; label: string; icon: string; comingSoon?: boolean }[] = [
+  { id: 'website',   label: 'Website',   icon: '🌐' },
+  { id: 'whatsapp',  label: 'WhatsApp',  icon: '💬'},
+  // { id: 'instagram', label: 'Instagram', emoji: '📸', comingSoon: true },
 ];
 
 export function PlatformSelector({ value, onChange }: PlatformSelectorProps) {
@@ -30,7 +31,7 @@ export function PlatformSelector({ value, onChange }: PlatformSelectorProps) {
                 : 'text-muted-foreground hover:text-foreground cursor-pointer',
           ].join(' ')}
         >
-          <span>{p.emoji}</span>
+          <span>{p.icon}</span>
           <span>{p.label}</span>
           {p.comingSoon && (
             <span className="absolute -top-1.5 -right-1 text-[8px] font-semibold px-1 py-0.5 rounded bg-muted text-muted-foreground/60 leading-none">
