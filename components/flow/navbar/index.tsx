@@ -121,13 +121,6 @@ export function FlowNavbar({
 
         <Button
           onClick={() => setPreviewOpen(true)}
-          className="flex items-center gap-1.5 rounded-lg transition-colors hover:bg-white/5"
-          style={{
-            padding: '5px 13px',
-            fontSize: 13,
-            color: '#d4d5d7',
-            border: '1px solid #363839',
-          }}
           title="Preview"
         >
           <EyeIcon size={13} style={{ color: '#6b7280' }} />
@@ -138,10 +131,7 @@ export function FlowNavbar({
           className="flex items-center rounded-lg overflow-hidden bg-white/10 "
           // style={{ background: '#f36b25' }}
         >
-          <Button
-            className="hover:bg-black/10 transition-colors text-white"
-            style={{ padding: '6px 16px', fontSize: 13, fontWeight: 600 }}
-          >
+          <Button>
             Publish
           </Button>
           <div style={{ width: 1, alignSelf: 'stretch', background: 'rgba(0,0,0,0.2)' }} />
