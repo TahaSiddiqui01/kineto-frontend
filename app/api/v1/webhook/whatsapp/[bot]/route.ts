@@ -4,6 +4,7 @@ import {
     setConversationState,
 } from "@/lib/conversation-state"
 import { botDataModule } from "@/modules/bot-data"
+import { wa_chat_manager } from "@/modules/bot/whatsapp"
 
 // ── Webhook verification ──────────────────────────────────────────────────────
 
@@ -35,7 +36,7 @@ export async function POST(
     const body = await request.json()
 
     // Meta always expects 200 quickly — extract message details and process async
-    const message = extractMessage(body)
+    const message = wa_chat_manager.extractMessage(body)
 
     if (!message) {
         // Status updates, read receipts, etc. — acknowledge and ignore
@@ -70,33 +71,7 @@ export async function POST(
     return NextResponse.json({ status: "ok" })
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 
-interface IncomingMessage {
-    from: string
-    id: string
-    text: string
-    type: string
-}
-
-function extractMessage(body: unknown): IncomingMessage | null {
-    try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const entry = (body as any)?.entry?.[0]
-        const change = entry?.changes?.[0]?.value
-        const msg = change?.messages?.[0]
-        if (!msg) return null
-
-        return {
-            from: msg.from,
-            id: msg.id,
-            type: msg.type,
-            text: msg.text?.body ?? msg.interactive?.button_reply?.title ?? "",
-        }
-    } catch {
-        return null
-    }
-}
 
 /** Determine which node to run next based on current conversation position.
  *  Returns the start node when no prior state exists, otherwise stays at current.

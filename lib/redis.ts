@@ -8,11 +8,10 @@ declare global {
 
 function createRedisClient(): RedisClientType {
     const client = createClient({
-        username: process.env.REDIS_USERNAME || "default",
-        password: process.env.REDIS_PASSWORD,
+        url: process.env.REDIS_URL,
+        // username: process.env.REDIS_USERNAME,
+        // password: process.env.REDIS_PASSWORD,
         socket: {
-            host: process.env.REDIS_HOST,
-            port: parseInt(process.env.REDIS_PORT || "6379"),
             reconnectStrategy: (retries) => Math.min(retries * 100, 3000),
         },
     }) as RedisClientType
