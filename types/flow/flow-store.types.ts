@@ -63,6 +63,7 @@ export interface FlowStore {
     deleteVariable: (id: string | number) => void
 
     // Load persisted flow (replaces all state, clears history)
+    flowInitialized: boolean;
     initializeFlow: (nodes: FlowNode[], edges: FlowEdge[], variables: Variable[]) => void;
 
     // Variables panel visibility

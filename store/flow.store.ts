@@ -29,6 +29,7 @@ export const useFlowStore = create<FlowStore>()(
             nodes: [INITIAL_START_NODE] as FlowNode[],
             edges: [] as FlowEdge[],
             selectedNodeId: null,
+            flowInitialized: false,
             activeDragBlock: null,
             selectedBlockId: null,
             selectedBlockNodeId: null,
@@ -230,7 +231,7 @@ export const useFlowStore = create<FlowStore>()(
 
             initializeFlow: (nodes, edges, variables) =>
                 set(
-                    { nodes, edges, variables, past: [], future: [], canUndo: false, canRedo: false },
+                    { nodes, edges, variables, flowInitialized: true, past: [], future: [], canUndo: false, canRedo: false },
                     false,
                     'initializeFlow'
                 ),
