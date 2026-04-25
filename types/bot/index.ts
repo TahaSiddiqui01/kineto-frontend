@@ -1,4 +1,20 @@
+import type { FlowEdge, FlowNode, Variable } from "@/types/flow"
+
 export type BotStatus = "active" | "inactive"
+
+export interface BotFlowData {
+    nodes: FlowNode[]
+    edges: FlowEdge[]
+    variables: Variable[]
+}
+
+export interface BotDataRecord {
+    id: string
+    created_at: string
+    updated_at: string
+    bot_id: string
+    bot_data: BotFlowData
+}
 
 export interface Folder {
     id: string

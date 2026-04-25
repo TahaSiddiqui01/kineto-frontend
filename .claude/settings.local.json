@@ -11,7 +11,9 @@
       "Read(///wsl.localhost/Ubuntu/home/home/projects/personal/kineto/**)",
       "Bash(grep -E \"\\\\.tsx$|^d\")",
       "Bash(xargs grep -l \"logic\\\\|event\")",
-      "WebFetch(domain:docs.typebot.com)"
+      "WebFetch(domain:docs.typebot.com)",
+      "Bash(pnpm config *)",
+      "Bash(pnpm add *)"
     ]
   }
 }

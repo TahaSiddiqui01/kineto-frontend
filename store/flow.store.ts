@@ -228,6 +228,13 @@ export const useFlowStore = create<FlowStore>()(
                 );
             },
 
+            initializeFlow: (nodes, edges, variables) =>
+                set(
+                    { nodes, edges, variables, past: [], future: [], canUndo: false, canRedo: false },
+                    false,
+                    'initializeFlow'
+                ),
+
             setSelectedNodeId: (id) => set({ selectedNodeId: id }, false, 'setSelectedNodeId'),
 
             setSelectedBlock: (blockId, nodeId) =>

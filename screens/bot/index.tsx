@@ -1,10 +1,14 @@
 import BotCanvas from '@/components/bot/bot-canvas'
 import React from 'react'
 
-function BotPage() {
+interface BotPageProps {
+    botId: string
+}
+
+function BotPage({ botId }: BotPageProps) {
     return (
         <>
-            <BotCanvas />
+            <BotCanvas botId={botId} />
         </>
     )
 }
