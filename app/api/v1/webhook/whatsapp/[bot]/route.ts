@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import {
     getConversationState,
     setConversationState,
-} from "@/lib/conversation-state"
+} from "@/lib/conversation-state..server"
 import { botDataModule } from "@/modules/bot-data"
 import { wa_chat_manager } from "@/modules/bot/whatsapp"
 
@@ -55,7 +55,7 @@ export async function POST(
         }
 
         const flow = botRecord.bot_data
-        const nextNodeId = resolveNextNode(state.currentNodeId, flow)
+        const nextNodeId = await wa_chat_manager.resolveMessage({currentNodeId: state.currentNodeId, flow, incomingMessage: message})
 
         // Persist updated state
         await setConversationState(botId, message.from, {
@@ -69,21 +69,4 @@ export async function POST(
     }
 
     return NextResponse.json({ status: "ok" })
-}
-
-
-
-/** Determine which node to run next based on current conversation position.
- *  Returns the start node when no prior state exists, otherwise stays at current.
- *  Full execution logic (following edges, evaluating conditions) will be added
- *  when the flow engine is implemented. */
-function resolveNextNode(
-    currentNodeId: string | null,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    flow: { nodes: any[]; edges: any[] }
-): string | null {
-    if (currentNodeId) return currentNodeId
-
-    const startNode = flow.nodes.find((n) => n.type === "start")
-    return startNode?.id ?? null
 }

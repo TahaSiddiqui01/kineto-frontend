@@ -1,4 +1,7 @@
-import { IncomingMessage } from "@/types/whatsapp"
+import { BotFlowData } from "@/types/bot"
+import { WaChatResolveParams } from "@/types/whatsapp/wa-chat-manager"
+import { IncomingMessage } from "@/types/whatsapp/whatsapp"
+import { wa_client } from "./wa-client"
 
 class WaChatManager {
     public extractMessage(body: unknown): IncomingMessage | null {
@@ -14,10 +17,21 @@ class WaChatManager {
                 id: msg.id,
                 type: msg.type,
                 text: msg.text?.body ?? msg.interactive?.button_reply?.title ?? "",
+                messages: change.messages
             }
         } catch {
             return null
         }
+    }
+
+    async resolveMessage({ currentNodeId, flow, incomingMessage }: WaChatResolveParams): Promise<string | null> {
+
+        wa_client.sendMessage({ incomingMessage, currentNodeId, data: flow })
+        
+        if (currentNodeId) return currentNodeId
+
+        const startNode = flow.nodes.find((n) => n.type === "start")
+        return startNode?.id ?? null
     }
 }
 
