@@ -29,7 +29,9 @@ export async function setConversationState(
     phoneNumber: string,
     state: ConversationState
 ): Promise<void> {
-    await redis.set(key(botId, phoneNumber), JSON.stringify(state), { EX: CONVERSATION_TTL })
+    const keyStr = key(botId, phoneNumber)
+    const value = JSON.stringify(state)
+    await redis.set(keyStr, value, "EX", CONVERSATION_TTL)
 }
 
 export async function clearConversationState(
