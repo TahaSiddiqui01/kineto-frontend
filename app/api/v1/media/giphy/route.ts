@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
   const raw = await res.json() as {
     data?: {
       id: string;
-      images: { original: { url: string }; fixed_height_small: { url: string } };
+      images: { original: { url: string; mp4: string }; fixed_height_small: { url: string } };
     }[];
   };
 
@@ -29,6 +29,7 @@ export async function GET(req: NextRequest) {
     data: (raw.data ?? []).map((r) => ({
       id: r.id,
       url: r.images.original.url,
+      mp4: r.images.original.mp4,
       preview: r.images.fixed_height_small.url,
     })),
   });

@@ -176,7 +176,7 @@ class WaChatManager {
         if (conditions.length === 0) return true
 
         const results = conditions.map((c) => {
-            const actual = c.variableName ? (variables[c.variableName] ?? "") : ""
+            const actual = c.variableName ? String(variables[c.variableName] ?? "") : ""
             return this.testCondition(actual, c.operator, c.value)
         })
 
@@ -198,7 +198,7 @@ class WaChatManager {
             case "custom": {
                 const raw = block.content.value as string | undefined
                 updated[varName] = raw
-                    ? raw.replace(/\{\{([^}]+)\}\}/g, (_, n) => variables[n.trim()] ?? `{{${n}}}`)
+                    ? raw.replace(/\{\{([^}]+)\}\}/g, (_, n) => String(variables[n.trim()] ?? `{{${n}}}`))
                     : ""
                 break
             }

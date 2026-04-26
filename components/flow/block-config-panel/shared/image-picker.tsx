@@ -37,7 +37,18 @@ const inputClass =
   'w-full bg-[#1c1d20] border border-[#2e2f33] rounded-lg text-[#e2e4e8] text-[13px] outline-none px-2.5 py-[7px] transition-colors focus:border-blue-500 placeholder:text-gray-600';
 
 type UnsplashResult = { id: string; url: string; thumb: string; alt: string };
-type GiphyResult = { id: string; url: string; preview: string };
+type GiphyResult = { id: string; url: string; mp4: string; preview: string };
+
+function isVideoUrl(url: string) {
+  return url.toLowerCase().includes('.mp4');
+}
+
+function MediaPreview({ src, className }: { src: string; className: string }) {
+  if (isVideoUrl(src)) {
+    return <video src={src} className={className} autoPlay loop muted playsInline />;
+  }
+  return <img src={src} alt="" className={className} />;
+}
 
 export function ImagePicker({ value, allowIconsTab = false, allowVariables = false, onChange }: ImagePickerProps) {
   const { imageUrl, iconName, iconColor = '#e2e4e8' } = value;
@@ -59,6 +70,8 @@ export function ImagePicker({ value, allowIconsTab = false, allowVariables = fal
   const [giphyResults, setGiphyResults] = useState<GiphyResult[]>([]);
   const [giphyError, setGiphyError] = useState('');
   const [isSearching, setIsSearching] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const urlInputRef = useRef<HTMLInputElement>(null);
@@ -82,11 +95,24 @@ export function ImagePicker({ value, allowIconsTab = false, allowVariables = fal
     });
   }
 
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !file.type.startsWith('image/')) return;
-    onChange({ imageUrl: URL.createObjectURL(file), iconName: undefined });
-  }, [onChange, value]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!file) return;
+    setUploadError('');
+    setIsUploading(true);
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      const res = await fetch('/api/v1/media/upload', { method: 'POST', body: form });
+      const json = await res.json() as { data?: { url: string }; error?: string };
+      if (!res.ok) { setUploadError(json.error ?? 'Upload failed.'); return; }
+      onChange({ imageUrl: json.data!.url, iconName: undefined });
+    } catch {
+      setUploadError('Network error. Try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  }, [onChange]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchUnsplash = useCallback(async (query?: string) => {
     setIsSearching(true);
@@ -188,11 +214,7 @@ export function ImagePicker({ value, allowIconsTab = false, allowVariables = fal
             />
           </div>
           {imageUrl && !imageUrl.startsWith('{{') && (
-            <img
-              src={imageUrl}
-              alt=""
-              className="rounded-lg object-cover border border-[#2e2f33] max-h-32 w-full"
-            />
+            <MediaPreview src={imageUrl} className="rounded-lg object-cover border border-[#2e2f33] max-h-32 w-full" />
           )}
         </div>
       )}
@@ -203,13 +225,13 @@ export function ImagePicker({ value, allowIconsTab = false, allowVariables = fal
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp"
             className="hidden"
             onChange={handleFileChange}
           />
           <div
-            onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-[#2e2f33] rounded-lg p-8 text-center cursor-pointer hover:border-[#3e3f43] transition-colors bg-[#16171a]"
+            onClick={() => !isUploading && fileInputRef.current?.click()}
+            className={`border-2 border-dashed border-[#2e2f33] rounded-lg p-8 text-center transition-colors bg-[#16171a] ${isUploading ? 'opacity-60 cursor-wait' : 'cursor-pointer hover:border-[#3e3f43]'}`}
           >
             {imageUrl ? (
               <img src={imageUrl} alt="" className="max-h-28 rounded-md mx-auto mb-2 object-cover" />
@@ -220,9 +242,10 @@ export function ImagePicker({ value, allowIconsTab = false, allowVariables = fal
                 <line x1="12" y1="3" x2="12" y2="15" />
               </svg>
             )}
-            <p className="text-[13px] text-gray-400">Click to upload</p>
-            <p className="text-[11px] text-gray-600 mt-0.5">PNG, JPG, GIF, WebP</p>
+            <p className="text-[13px] text-gray-400">{isUploading ? 'Uploading…' : 'Click to upload'}</p>
+            <p className="text-[11px] text-gray-600 mt-0.5">PNG, JPG, WebP · max 5 MB</p>
           </div>
+          {uploadError && <p className="text-[12px] text-red-400">{uploadError}</p>}
         </div>
       )}
 
@@ -305,19 +328,31 @@ export function ImagePicker({ value, allowIconsTab = false, allowVariables = fal
           ) : giphyError ? (
             <p className="text-center text-amber-500 text-[12px] py-2">{giphyError}</p>
           ) : giphyResults.length > 0 ? (
-            <div className="grid grid-cols-3 gap-1.5 max-h-52 overflow-y-auto">
-              {giphyResults.map((r) => (
-                <img
-                  key={r.id}
-                  src={r.preview}
-                  alt=""
-                  onClick={() => onChange({ imageUrl: r.url, iconName: undefined })}
-                  className={`w-full aspect-square object-cover rounded-md cursor-pointer transition-all hover:opacity-90 ${
-                    imageUrl === r.url ? 'ring-2 ring-blue-500' : ''
-                  }`}
+            <>
+              <div className="grid grid-cols-3 gap-1.5 max-h-52 overflow-y-auto">
+                {giphyResults.map((r) => (
+                  <img
+                    key={r.id}
+                    src={r.preview}
+                    alt=""
+                    onClick={() => onChange({ imageUrl: r.mp4, iconName: undefined })}
+                    className={`w-full aspect-square object-cover rounded-md cursor-pointer transition-all hover:opacity-90 ${
+                      imageUrl === r.mp4 ? 'ring-2 ring-blue-500' : ''
+                    }`}
+                  />
+                ))}
+              </div>
+              {imageUrl && isVideoUrl(imageUrl) && (
+                <video
+                  src={imageUrl}
+                  className="rounded-lg border border-[#2e2f33] max-h-32 w-full object-cover"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
                 />
-              ))}
-            </div>
+              )}
+            </>
           ) : (
             <p className="text-center text-gray-600 text-[12px] py-4">
               {giphyQuery ? 'No results found' : 'Search for GIFs above'}

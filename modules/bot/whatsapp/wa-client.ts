@@ -109,8 +109,14 @@ class WaClient {
             case "image-bubble": {
                 const url = block.content.imageUrl as string | undefined
                 if (!url) return true
+                const resolved = interpolate(url, variables)
+                // mp4 URLs (e.g. from Giphy) must be sent as video — WA rejects GIFs as image type
+                console.log("======> Image URL REsolution: ", resolved)
+                if (resolved.toLowerCase().includes('.mp4')) {
+                    return this.sendVideo(to, resolved)
+                }
                 const alt = block.content.alt as string | undefined
-                return this.sendImage({ to, url: interpolate(url, variables), caption: alt })
+                return this.sendImage({ to, url: resolved, caption: alt })
             }
 
             case "video-bubble": {

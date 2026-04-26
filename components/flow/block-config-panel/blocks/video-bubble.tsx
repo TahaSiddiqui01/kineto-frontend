@@ -22,7 +22,9 @@ const ASPECT_RATIOS: { id: AspectRatio; label: string }[] = [
   { id: 'square', label: 'Square (1:1)' },
 ];
 
-const ACCEPTED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime'];
+// WhatsApp supports MP4 and 3GPP only; max 16 MB
+const ACCEPTED_VIDEO_TYPES = ['video/mp4', 'video/3gpp'];
+const MAX_VIDEO_SIZE_MB = 16;
 
 const inputClass =
   'w-full bg-[#1c1d20] border border-[#2e2f33] rounded-lg text-[#e2e4e8] text-[13px] outline-none px-2.5 py-[7px] transition-colors focus:border-blue-500 placeholder:text-gray-600';
@@ -106,13 +108,35 @@ function UploadTab({
   onChange: BlockConfigProps['onChange'];
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
 
   const handleFileChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file) return;
-      if (!ACCEPTED_VIDEO_TYPES.includes(file.type)) return;
-      onChange({ videoUrl: URL.createObjectURL(file), videoFileName: file.name });
+      if (!ACCEPTED_VIDEO_TYPES.includes(file.type)) {
+        setUploadError('Only MP4 and 3GPP are supported.');
+        return;
+      }
+      if (file.size > MAX_VIDEO_SIZE_MB * 1024 * 1024) {
+        setUploadError(`File exceeds ${MAX_VIDEO_SIZE_MB} MB limit.`);
+        return;
+      }
+      setUploadError('');
+      setIsUploading(true);
+      try {
+        const form = new FormData();
+        form.append('file', file);
+        const res = await fetch('/api/v1/media/video-upload', { method: 'POST', body: form });
+        const json = await res.json() as { data?: { url: string }; error?: string };
+        if (!res.ok) { setUploadError(json.error ?? 'Upload failed.'); return; }
+        onChange({ videoUrl: json.data!.url, videoFileName: file.name });
+      } catch {
+        setUploadError('Network error. Try again.');
+      } finally {
+        setIsUploading(false);
+      }
     },
     [onChange],
   );
@@ -127,8 +151,8 @@ function UploadTab({
         onChange={handleFileChange}
       />
       <div
-        onClick={() => fileInputRef.current?.click()}
-        className="border-2 border-dashed border-[#2e2f33] rounded-lg p-8 text-center cursor-pointer hover:border-[#3e3f43] transition-colors bg-[#16171a]"
+        onClick={() => !isUploading && fileInputRef.current?.click()}
+        className={`border-2 border-dashed border-[#2e2f33] rounded-lg p-8 text-center transition-colors bg-[#16171a] ${isUploading ? 'opacity-60 cursor-wait' : 'cursor-pointer hover:border-[#3e3f43]'}`}
       >
         {videoUrl ? (
           <video
@@ -151,9 +175,10 @@ function UploadTab({
             <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
           </svg>
         )}
-        <p className="text-[13px] text-gray-400">Click to upload</p>
-        <p className="text-[11px] text-gray-600 mt-0.5">MP4, WebM, OGG, MOV</p>
+        <p className="text-[13px] text-gray-400">{isUploading ? 'Uploading…' : 'Click to upload'}</p>
+        <p className="text-[11px] text-gray-600 mt-0.5">MP4, 3GPP · max {MAX_VIDEO_SIZE_MB} MB</p>
       </div>
+      {uploadError && <p className="text-[12px] text-red-400">{uploadError}</p>}
     </div>
   );
 }

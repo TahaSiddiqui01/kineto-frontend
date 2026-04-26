@@ -1,13 +1,15 @@
-import * as LucideIcons from 'lucide-react';
 import type { BlockItemPreviewProps } from '../types';
+import { DynamicIcon } from '@/components/ui/icons/dynamic-icon';
 
-function IconThumb({ name, color }: { name: string; color: string }) {
-  const Icon = (LucideIcons as Record<string, React.ComponentType<{ size: number; color: string; strokeWidth: number }>>)[name];
-  return (
-    <div className="w-7 h-7 rounded flex items-center justify-center shrink-0 border border-[#2e2f33] bg-[#1c1d20]">
-      {Icon ? <Icon size={14} color={color} strokeWidth={2} /> : null}
-    </div>
-  );
+function isVideoUrl(url: string) {
+  return url.toLowerCase().includes('.mp4');
+}
+
+function MediaPreview({ src, className, alt }: { src: string; className: string; alt?: string }) {
+  if (isVideoUrl(src)) {
+    return <video src={src} className={className} autoPlay loop muted playsInline />;
+  }
+  return <img src={src} alt={alt ?? ""} className={className} />;
 }
 
 export function ImageBubbleItemPreview({ block }: BlockItemPreviewProps) {
@@ -22,11 +24,11 @@ export function ImageBubbleItemPreview({ block }: BlockItemPreviewProps) {
   return (
     <div className="flex items-center gap-2 flex-1 min-w-0">
       {iconName ? (
-        <IconThumb name={iconName} color={iconColor} />
+        <DynamicIcon name={iconName} color={iconColor} />
       ) : imageUrl ? (
-        <img
+        <MediaPreview
           src={imageUrl}
-          alt={alt ?? ''}
+          alt={label}
           className="w-7 h-7 rounded object-cover shrink-0 border border-[#2e2f33]"
         />
       ) : (
