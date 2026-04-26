@@ -1,15 +1,9 @@
-import { BotFlowData } from "../bot";
-import { IncomingMessage } from "./whatsapp";
+import type { BotFlowData } from "@/types/bot"
+import type { IncomingMessage } from "./whatsapp"
+import type { ConversationState } from "@/lib/conversation-state.server"
 
 export interface WaChatResolveParams {
-    currentNodeId: string | null;
+    state: ConversationState
     flow: BotFlowData
-    incomingMessage: IncomingMessage;
+    incomingMessage: IncomingMessage
 }
-
-export interface WaChatResolveResponse {
-    previousNodeId: string | null;
-    currentNodeId: string | null;
-    nextNodeId: string | null;
-}
-

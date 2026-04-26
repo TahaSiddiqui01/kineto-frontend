@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import {
-    getConversationState,
-    setConversationState,
-} from "@/lib/conversation-state..server"
+import { getConversationState, setConversationState } from "@/lib/conversation-state.server"
 import { botDataModule } from "@/modules/bot-data"
 import { wa_chat_manager } from "@/modules/bot/whatsapp"
 
@@ -35,11 +32,11 @@ export async function POST(
     const { bot: botId } = await context.params
     const body = await request.json()
 
-    // Meta always expects 200 quickly — extract message details and process async
+    // Meta expects 200 quickly — parse first, process inline
     const message = wa_chat_manager.extractMessage(body)
 
     if (!message) {
-        // Status updates, read receipts, etc. — acknowledge and ignore
+        // Status updates, read receipts, etc.
         return NextResponse.json({ status: "ok" })
     }
 
@@ -54,16 +51,17 @@ export async function POST(
             return NextResponse.json({ status: "ok" })
         }
 
-        const flow = botRecord.bot_data
-        const nextNodeId = await wa_chat_manager.resolveMessage({currentNodeId: state.currentNodeId, flow, incomingMessage: message})
-
-        // Persist updated state
-        await setConversationState(botId, message.from, {
-            ...state,
-            currentNodeId: nextNodeId,
+        const newState = await wa_chat_manager.resolveMessage({
+            state,
+            flow: botRecord.bot_data,
+            incomingMessage: message,
         })
 
-        console.log("[webhook] bot=%s from=%s node=%s text=%s", botId, message.from, nextNodeId, message.text)
+        await setConversationState(botId, message.from, newState)
+
+        console.log("[webhook] bot=%s from=%s node=%s block=%s",
+            botId, message.from, newState.currentNodeId, newState.currentBlockId)
+
     } catch (err) {
         console.error("[webhook] Error processing message:", err)
     }
