@@ -6,7 +6,7 @@ const CONVERSATION_TTL = 60 * 60 * 24 // 24 hours
 export interface ConversationState {
     currentNodeId: string | null
     currentBlockId: string | null
-    variables: Record<string, string>
+    variables: Record<string, string | boolean | number>
 }
 
 function key(botId: string, phoneNumber: string): string {

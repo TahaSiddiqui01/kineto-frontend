@@ -51,8 +51,16 @@ export async function POST(
             return NextResponse.json({ status: "ok" })
         }
 
+        const variables = { ...(state?.variables || {}) }
+
+        for (const variable of botRecord.bot_data?.variables) {
+            if (!(variable.name in variables)) {
+                variables[variable.name] = variable.value
+            }
+        }
+
         const newState = await wa_chat_manager.resolveMessage({
-            state,
+            state: {...state, variables},
             flow: botRecord.bot_data,
             incomingMessage: message,
         })

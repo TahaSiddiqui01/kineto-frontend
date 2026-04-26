@@ -45,6 +45,8 @@ class WaChatManager {
     async resolveMessage({ state, flow, incomingMessage }: WaChatResolveParams): Promise<ConversationState> {
         let { currentNodeId, currentBlockId, variables } = state
 
+        console.log("[ChatManager] Resolving message variables:", variables)
+
         // ── 1. Capture response for the block we were waiting on ──────────────
         if (currentNodeId && currentBlockId) {
             const captured = this.captureInput(flow, currentNodeId, currentBlockId, incomingMessage.text, variables)
@@ -133,8 +135,8 @@ class WaChatManager {
         nodeId: string,
         blockId: string,
         userText: string,
-        variables: Record<string, string>
-    ): { variables: Record<string, string>; nextBlockId: string | null } {
+        variables: Record<string, string | boolean | number>
+    ): { variables: Record<string, string | boolean | number>; nextBlockId: string | null } {
         const node = flow.nodes.find((n) => n.id === nodeId) as GroupFlowNode | undefined
         if (!node) return { variables, nextBlockId: null }
 
@@ -167,7 +169,7 @@ class WaChatManager {
         return match?.target ?? null
     }
 
-    private evaluateConditionBlock(block: Block, variables: Record<string, string>): boolean {
+    private evaluateConditionBlock(block: Block, variables: Record<string, string | boolean | number>): boolean {
         const conditions = (block.content.conditions as ConditionItem[] | undefined) ?? []
         const logical = (block.content.logicalOperator as string | undefined) ?? "AND"
 
@@ -183,9 +185,9 @@ class WaChatManager {
 
     private executeSetVariable(
         block: Block,
-        variables: Record<string, string>,
+        variables: Record<string, string | boolean | number>,
         phoneNumber: string
-    ): Record<string, string> {
+    ): Record<string, string | boolean | number> {
         const varName = block.content.variable as string | undefined
         if (!varName) return variables
 

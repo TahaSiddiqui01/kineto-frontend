@@ -1,11 +1,9 @@
+import { interpolate } from "@/components/flow/preview/registry/utils";
 import type { Block } from "@/types/flow"
 import type { WaSendButtonsParams, WaSendImageParams, WaSendTextParams } from "@/types/whatsapp/wa-client"
 
 type ButtonItem = { id: string; text: string }
 
-function interpolate(text: string, variables: Record<string, string>): string {
-    return text.replace(/\{\{([^}]+)\}\}/g, (_, name) => variables[name.trim()] ?? `{{${name}}}`)
-}
 
 class WaClient {
     private readonly baseUrl = "https://graph.facebook.com/v25.0"
@@ -98,7 +96,7 @@ class WaClient {
     }
 
     /** Send the right WA message for a block. Variables are interpolated in all text fields. */
-    async sendBlock(to: string, block: Block, variables: Record<string, string> = {}): Promise<boolean> {
+    async sendBlock(to: string, block: Block, variables: Record<string, string | boolean | number> = {}): Promise<boolean> {
         switch (block.type) {
 
             // ── Bubbles ───────────────────────────────────────────────────────
