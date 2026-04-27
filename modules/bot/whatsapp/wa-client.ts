@@ -111,7 +111,6 @@ class WaClient {
                 if (!url) return true
                 const resolved = interpolate(url, variables)
                 // mp4 URLs (e.g. from Giphy) must be sent as video — WA rejects GIFs as image type
-                console.log("======> Image URL REsolution: ", resolved)
                 if (resolved.toLowerCase().includes('.mp4')) {
                     return this.sendVideo(to, resolved)
                 }

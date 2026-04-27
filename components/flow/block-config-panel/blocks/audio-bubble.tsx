@@ -12,17 +12,17 @@ const TABS: { id: AudioTab; label: string }[] = [
   { id: 'upload', label: 'Upload' },
 ];
 
+// WhatsApp supports AAC, MP4 audio (m4a), MPEG (mp3), AMR, OGG (Opus); max 16 MB
 const ACCEPTED_AUDIO_TYPES = [
   'audio/mpeg',   // mp3
-  'audio/wav',
   'audio/ogg',
   'audio/mp4',   // m4a
   'audio/aac',
-  'audio/flac',
-  'audio/webm',
+  'audio/amr',
 ];
 
-const ACCEPTED_AUDIO_EXTENSIONS = '.mp3,.wav,.ogg,.m4a,.aac,.flac,.webm';
+const ACCEPTED_AUDIO_EXTENSIONS = '.mp3,.ogg,.m4a,.aac,.amr';
+const MAX_AUDIO_SIZE_MB = 16;
 
 // Known embeddable domains
 const KNOWN_EMBED_DOMAINS = [
@@ -168,13 +168,35 @@ function UploadTab({
   onChange: BlockConfigProps['onChange'];
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
 
   const handleFileChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file) return;
-      if (!ACCEPTED_AUDIO_TYPES.includes(file.type)) return;
-      onChange({ audioUrl: URL.createObjectURL(file), audioFileName: file.name });
+      if (!ACCEPTED_AUDIO_TYPES.includes(file.type)) {
+        setUploadError('Unsupported format. Use AAC, MP3, M4A, AMR, or OGG.');
+        return;
+      }
+      if (file.size > MAX_AUDIO_SIZE_MB * 1024 * 1024) {
+        setUploadError(`File exceeds ${MAX_AUDIO_SIZE_MB} MB limit.`);
+        return;
+      }
+      setUploadError('');
+      setIsUploading(true);
+      try {
+        const form = new FormData();
+        form.append('file', file);
+        const res = await fetch('/api/v1/media/audio-upload', { method: 'POST', body: form });
+        const json = await res.json() as { data?: { url: string }; error?: string };
+        if (!res.ok) { setUploadError(json.error ?? 'Upload failed.'); return; }
+        onChange({ audioUrl: json.data!.url, audioFileName: file.name });
+      } catch {
+        setUploadError('Network error. Try again.');
+      } finally {
+        setIsUploading(false);
+      }
     },
     [onChange],
   );
@@ -189,8 +211,8 @@ function UploadTab({
         onChange={handleFileChange}
       />
       <div
-        onClick={() => fileInputRef.current?.click()}
-        className="border-2 border-dashed border-[#2e2f33] rounded-lg p-8 text-center cursor-pointer hover:border-[#3e3f43] transition-colors bg-[#16171a]"
+        onClick={() => !isUploading && fileInputRef.current?.click()}
+        className={`border-2 border-dashed border-[#2e2f33] rounded-lg p-8 text-center transition-colors bg-[#16171a] ${isUploading ? 'opacity-60 cursor-wait' : 'cursor-pointer hover:border-[#3e3f43]'}`}
       >
         <svg
           className="mx-auto mb-2 text-gray-600"
@@ -205,15 +227,18 @@ function UploadTab({
           <circle cx="6" cy="18" r="3" />
           <circle cx="18" cy="16" r="3" />
         </svg>
-        {audioFileName ? (
+        {isUploading ? (
+          <p className="text-[13px] text-gray-400">Uploading…</p>
+        ) : audioFileName ? (
           <p className="text-[13px] text-[#e2e4e8] font-medium truncate px-2">{audioFileName}</p>
         ) : (
           <p className="text-[13px] text-gray-400">Click to upload</p>
         )}
-        <p className="text-[11px] text-gray-600 mt-0.5">MP3, WAV, OGG, M4A, AAC, FLAC</p>
+        <p className="text-[11px] text-gray-600 mt-0.5">MP3, AAC, M4A, OGG, AMR · max {MAX_AUDIO_SIZE_MB} MB</p>
       </div>
+      {uploadError && <p className="text-[12px] text-red-400">{uploadError}</p>}
 
-      {audioUrl && audioUrl.startsWith('blob:') && (
+      {audioUrl && !audioUrl.startsWith('blob:') && (
         <audio
           src={audioUrl}
           controls
