@@ -44,10 +44,7 @@ function isVideoUrl(url: string) {
 }
 
 function MediaPreview({ src, className }: { src: string; className: string }) {
-  if (isVideoUrl(src)) {
-    return <video src={src} className={className} autoPlay loop muted playsInline />;
-  }
-  return <img src={src} alt="" className={className} />;
+  return <img src={src.replace(".mp4", ".gif")} alt="" className={className} />;
 }
 
 export function ImagePicker({ value, allowIconsTab = false, allowVariables = false, onChange }: ImagePickerProps) {

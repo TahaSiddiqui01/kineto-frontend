@@ -6,10 +6,7 @@ function isVideoUrl(url: string) {
 }
 
 function MediaPreview({ src, className, alt }: { src: string; className: string; alt?: string }) {
-  if (isVideoUrl(src)) {
-    return <video src={src} className={className} autoPlay loop muted playsInline />;
-  }
-  return <img src={src} alt={alt ?? ""} className={className} />;
+  return <img src={src.replace(".mp4", ".gif")} alt={alt ?? ""} className={className} />;
 }
 
 export function ImageBubbleItemPreview({ block }: BlockItemPreviewProps) {
