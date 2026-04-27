@@ -14,9 +14,6 @@ export default function WorkspacesPage() {
   const { workspaces, isLoading } = useWorkspaces()
   const [dialogOpen, setDialogOpen] = useState(false)
 
-  console.log("Workspaces:", workspaces)
-
-
   return (
     <div className="max-w-12xl mx-auto py-10 px-6">
       {/* Header */}
