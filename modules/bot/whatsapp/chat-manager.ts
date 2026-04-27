@@ -14,7 +14,7 @@ const INPUT_BLOCK_TYPES = new Set([
 ])
 
 const BUBBLE_BLOCK_TYPES = new Set([
-    "text-bubble", "image-bubble", "video-bubble", "embed-bubble", "audio-bubble",
+    "text-bubble", "image-bubble", "video-bubble", "document-bubble", "audio-bubble",
 ])
 
 class WaChatManager {

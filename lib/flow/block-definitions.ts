@@ -5,7 +5,7 @@ export const BLOCK_DEFINITIONS: BlockDefinition[] = [
   { type: 'text-bubble',  label: 'Text',    category: 'bubbles', iconName: 'MessageSquare', color: '#e2e8f0' },
   { type: 'image-bubble', label: 'Image',   category: 'bubbles', iconName: 'Image',         color: '#e2e8f0' },
   { type: 'video-bubble', label: 'Video',   category: 'bubbles', iconName: 'Video',         color: '#e2e8f0' },
-  { type: 'embed-bubble', label: 'Embed',   category: 'bubbles', iconName: 'Code2',         color: '#e2e8f0' },
+  { type: 'document-bubble', label: 'Document', category: 'bubbles', iconName: 'FileText', color: '#e2e8f0' },
   { type: 'audio-bubble', label: 'Audio',   category: 'bubbles', iconName: 'Headphones',    color: '#e2e8f0' },
 
   // ── Inputs ───────────────────────────────────────────────────────────────────

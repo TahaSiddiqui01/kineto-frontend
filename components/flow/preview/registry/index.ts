@@ -7,7 +7,7 @@ import { TextBubbleChat } from './bubbles/text-bubble';
 import { ImageBubbleChat } from './bubbles/image-bubble';
 import { VideoBubbleChat } from './bubbles/video-bubble';
 import { AudioBubbleChat } from './bubbles/audio-bubble';
-import { EmbedBubbleChat } from './bubbles/embed-bubble';
+import { DocumentBubbleChat } from './bubbles/document-bubble';
 
 // Input imports
 import { TextInputChat } from './inputs/text-input';
@@ -36,7 +36,7 @@ export const CHAT_BLOCK_REGISTRY: Partial<Record<BlockType, ChatBlockEntry>> = {
   'image-bubble':      { component: ImageBubbleChat,     category: 'bubble' },
   'video-bubble':      { component: VideoBubbleChat,     category: 'bubble' },
   'audio-bubble':      { component: AudioBubbleChat,     category: 'bubble' },
-  'embed-bubble':      { component: EmbedBubbleChat,     category: 'bubble' },
+  'document-bubble':   { component: DocumentBubbleChat,  category: 'bubble' },
   // Inputs
   'text-input':        { component: TextInputChat,       category: 'input' },
   'number-input':      { component: NumberInputChat,     category: 'input' },
@@ -71,7 +71,7 @@ export const PLATFORM_SUPPORT: Partial<Record<BlockType, Record<Platform, Platfo
   'image-bubble':      { website: 'full', whatsapp: 'full',    instagram: 'full' },
   'video-bubble':      { website: 'full', whatsapp: 'partial', instagram: 'none' },
   'audio-bubble':      { website: 'full', whatsapp: 'full',    instagram: 'none' },
-  'embed-bubble':      { website: 'full', whatsapp: 'none',    instagram: 'none' },
+  'document-bubble':   { website: 'full', whatsapp: 'full',    instagram: 'none' },
   'text-input':        { website: 'full', whatsapp: 'full',    instagram: 'full' },
   'number-input':      { website: 'full', whatsapp: 'full',    instagram: 'full' },
   'email-input':       { website: 'full', whatsapp: 'full',    instagram: 'full' },

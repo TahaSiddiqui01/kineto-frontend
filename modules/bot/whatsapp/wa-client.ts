@@ -1,4 +1,5 @@
 import { interpolate } from "@/components/flow/preview/registry/utils";
+import { extractFileNameFromUrl } from "@/helpers";
 import type { Block } from "@/types/flow"
 import type { WaSendButtonsParams, WaSendImageParams, WaSendTextParams } from "@/types/whatsapp/wa-client"
 
@@ -95,6 +96,20 @@ class WaClient {
         })
     }
 
+    private async sendDocument(to: string, url: string, fileName?: string, caption?: string): Promise<boolean> {
+        return this.post({
+            messaging_product: "whatsapp",
+            recipient_type: "individual",
+            to,
+            type: "document",
+            document: {
+                link: url,
+                ...(fileName ? { filename: fileName } : {}),
+                ...(caption ? { caption } : {}),
+            },
+        })
+    }
+
     /** Send the right WA message for a block. Variables are interpolated in all text fields. */
     async sendBlock(to: string, block: Block, variables: Record<string, string | boolean | number> = {}): Promise<boolean> {
         switch (block.type) {
@@ -130,11 +145,19 @@ class WaClient {
                 return this.sendAudio(to, interpolate(url, variables))
             }
 
-            case "embed-bubble": {
-                // WhatsApp has no embed type — send the URL as a text link
-                const url = block.content.url as string | undefined
+            case "document-bubble": {
+                const url = block.content.documentUrl as string | undefined
                 if (!url) return true
-                return this.sendText({ to, text: interpolate(url, variables) })
+                const resolvedUrl = interpolate(url, variables)
+                const storedName = block.content.documentFileName as string | undefined
+                const fileName = storedName || extractFileNameFromUrl(resolvedUrl) || undefined
+                const caption = block.content.caption as string | undefined
+                return this.sendDocument(
+                    to,
+                    resolvedUrl,
+                    fileName,
+                    caption ? interpolate(caption, variables) : undefined,
+                )
             }
 
             // ── Input prompts (send the question, then wait for reply) ────────

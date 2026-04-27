@@ -4,7 +4,7 @@ export type BubbleBlockType =
   | 'text-bubble'
   | 'image-bubble'
   | 'video-bubble'
-  | 'embed-bubble'
+  | 'document-bubble'
   | 'audio-bubble';
 
 export type InputBlockType =

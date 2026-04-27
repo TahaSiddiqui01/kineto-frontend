@@ -5,7 +5,7 @@ import { TextBubbleConfig } from './blocks/text-bubble';
 import { ImageBubbleConfig } from './blocks/image-bubble';
 import { VideoBubbleConfig } from './blocks/video-bubble';
 import { AudioBubbleConfig } from './blocks/audio-bubble';
-import { EmbedBubbleConfig } from './blocks/embed-bubble';
+import { DocumentBubbleConfig } from './blocks/document-bubble';
 import { TextInputConfig } from './blocks/text-input';
 import { NumberInputConfig } from './blocks/number-inputs/number-input';
 import { AudioInputConfig } from './blocks/audio-input';
@@ -40,7 +40,7 @@ export const BLOCK_CONFIG_REGISTRY: Partial<Record<BlockType, ComponentType<Bloc
   'image-bubble': ImageBubbleConfig,
   'video-bubble': VideoBubbleConfig,
   'audio-bubble': AudioBubbleConfig,
-  'embed-bubble': EmbedBubbleConfig,
+  'document-bubble': DocumentBubbleConfig,
   // inputs
   'text-input': TextInputConfig,
   'number-input': NumberInputConfig,

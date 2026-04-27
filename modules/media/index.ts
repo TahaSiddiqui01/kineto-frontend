@@ -55,6 +55,22 @@ class MediaModule {
 
         return { fileId, url: urlData.publicUrl }
     }
+
+    async uploadDocument(file: Buffer, fileName: string, mimeType: string): Promise<{ fileId: string; url: string }> {
+        const supabase = this.db()
+        const fileId = uuidv4()
+        const filePath = `bot-media/documents/${fileId}/${fileName}`
+
+        const { error } = await supabase.storage
+            .from(BUCKET_ID)
+            .upload(filePath, file, { contentType: mimeType, upsert: false })
+
+        if (error) throw error
+
+        const { data: urlData } = supabase.storage.from(BUCKET_ID).getPublicUrl(filePath)
+
+        return { fileId, url: urlData.publicUrl }
+    }
 }
 
 export const mediaModule = new MediaModule()
