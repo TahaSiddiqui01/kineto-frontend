@@ -3,6 +3,8 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Mic, Square, Play, Pause, Trash2 } from 'lucide-react';
 import { VariableSelectDropdown } from '../variable-select-dropdown';
+import { VariablePickerPopover } from '../variable-picker-popover';
+import { useVariableInsertion } from '../hooks/use-variable-insertion';
 import {
   Select,
   SelectContent,
@@ -11,6 +13,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import type { BlockConfigProps } from '../types';
+
+const inputClass =
+  'w-full bg-[#1c1d20] border border-[#2e2f33] rounded-lg text-[#e2e4e8] text-[13px] outline-none px-2.5 py-[7px] transition-colors focus:border-blue-500 placeholder:text-gray-600';
 
 type AccessLevel = 'private' | 'public';
 
@@ -179,11 +184,32 @@ function block_content_fileName(url: string): string | null {
 export function AudioInputConfig({ block, onChange }: BlockConfigProps) {
   const audioUrl = block.content.audioUrl as string | undefined;
   const access = (block.content.access as AccessLevel | undefined) ?? 'private';
+  const retryMessage = block.content.retryMessage as string | undefined;
   const saveAnswerTo = block.content.saveAnswerTo as string | undefined;
+
+  const { inputRef: retryRef, onInsert: onInsertRetry } = useVariableInsertion(retryMessage, 'retryMessage', onChange);
 
   return (
     <div className="flex flex-col gap-4">
       <RecorderSection audioUrl={audioUrl} onChange={onChange} />
+
+      <div className="h-px bg-[#2e2f33]" />
+
+      {/* Retry message */}
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-medium text-gray-400">Retry message</label>
+          <VariablePickerPopover onSelect={onInsertRetry} />
+        </div>
+        <input
+          ref={retryRef as React.Ref<HTMLInputElement>}
+          type="text"
+          value={retryMessage ?? ''}
+          onChange={(e) => onChange({ retryMessage: e.target.value })}
+          placeholder="Please send a voice message 🎙️"
+          className={inputClass}
+        />
+      </div>
 
       <div className="h-px bg-[#2e2f33]" />
 

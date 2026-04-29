@@ -2,26 +2,42 @@
 import { useState } from 'react';
 import type { ChatBlockProps } from '../types';
 import { interpolate } from '../utils';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
-const inputClass = 'flex-1 bg-background border border-border rounded-lg text-sm text-foreground outline-none px-3 py-2 placeholder:text-muted-foreground focus:border-primary transition-colors';
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function EmailInputChat({ block, variables, onAnswer }: ChatBlockProps) {
-  const placeholder = interpolate(block.content.placeholder as string ?? '', variables) || 'Enter your email\u2026';
+  const placeholder = interpolate(block.content.placeholder as string ?? '', variables) || 'Enter your email…';
   const buttonLabel = interpolate(block.content.buttonLabel as string ?? '', variables) || 'Send';
+  const retryMessage = (block.content.retryMessage as string | undefined) || 'Invalid email, please try again.';
   const [value, setValue] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!value.trim()) return;
-    onAnswer?.(value.trim());
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    if (!EMAIL_RE.test(trimmed)) { setError(retryMessage); return; }
+    setError(null);
+    onAnswer?.(trimmed);
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2">
-      <input type="email" value={value} onChange={(e) => setValue(e.target.value)} placeholder={placeholder} className={inputClass} />
-      <button type="submit" className="px-3 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors shrink-0 cursor-pointer">
-        {buttonLabel}
-      </button>
-    </form>
+    <div className="flex flex-col gap-1.5">
+      <form onSubmit={handleSubmit} className="flex gap-2">
+        <Input
+          type="email"
+          value={value}
+          onChange={(e) => { setValue(e.target.value); setError(null); }}
+          placeholder={placeholder}
+          autoFocus
+        />
+        <Button type="submit" size="sm" className="shrink-0 cursor-pointer">
+          {buttonLabel}
+        </Button>
+      </form>
+      {error && <p className="text-xs text-destructive">{error}</p>}
+    </div>
   );
 }

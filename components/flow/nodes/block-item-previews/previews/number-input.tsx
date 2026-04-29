@@ -21,9 +21,9 @@ export function NumberInputItemPreview({ block }: BlockItemPreviewProps) {
   return (
     <div className="flex items-center gap-2 flex-1 min-w-0">
       <div className="flex flex-col min-w-0 flex-1">
-        <span className="truncate text-sm font-medium text-[#e2e4e8]">{label}</span>
+        <span className="truncate text-sm font-medium text-left text-[#e2e4e8]">{label}</span>
         {formatLabel && (
-          <span className="text-[10px] text-gray-600 truncate">{formatLabel}</span>
+          <span className="text-[10px] text-left text-gray-600 truncate">{formatLabel}</span>
         )}
       </div>
     </div>

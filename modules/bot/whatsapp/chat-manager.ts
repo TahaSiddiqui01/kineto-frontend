@@ -5,6 +5,8 @@ import type { WaChatResolveParams } from "@/types/whatsapp/wa-chat-manager"
 import type { ConversationState } from "@/lib/conversation-state.server"
 import type { ConditionItem } from "@/components/flow/block-config-panel/blocks/condition/condition-row"
 import { wa_client } from "./wa-client"
+import { interpolate } from "@/components/flow/preview/registry/utils"
+import { BLOCK_RETRY_MESSAGES } from "@/constants/block-retry-messages"
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
 
@@ -36,6 +38,7 @@ class WaChatManager {
                     ?? msg.interactive?.button_reply?.title
                     ?? msg.interactive?.list_reply?.title
                     ?? "",
+                mediaId: msg.audio?.id ?? msg.voice?.id ?? undefined,
                 messages: change.messages,
             }
         } catch {
@@ -47,14 +50,38 @@ class WaChatManager {
     async resolveMessage({ state, flow, incomingMessage }: WaChatResolveParams): Promise<ConversationState> {
         let { currentNodeId, currentBlockId, variables } = state
 
-        // Mark as read + show typing indicator before the first reply
-        await wa_client.showTyping(incomingMessage.id)
+        // Conversation previously ended — restart with a clean slate
+        if (state.ended) {
+            currentNodeId = null
+            currentBlockId = null
+            variables = {}
+        }
 
         // ── 1. Capture response for the block we were waiting on ──────────────
+        let hadPendingInput = false
+
         if (currentNodeId && currentBlockId) {
-            const captured = this.captureInput(flow, currentNodeId, currentBlockId, incomingMessage.text, variables)
-            variables = captured.variables
-            currentBlockId = captured.nextBlockId
+            hadPendingInput = true
+            const currentNode = flow.nodes.find((n) => n.id === currentNodeId) as GroupFlowNode | undefined
+            const currentBlock = currentNode?.data.blocks.find((b) => b.id === currentBlockId)
+
+            if (currentBlock) {
+                const validation = this.validateInput(currentBlock, incomingMessage, variables)
+                if (!validation.valid) {
+                    await wa_client.sendText({ to: incomingMessage.from, text: validation.error })
+                    await wa_client.showTyping(incomingMessage.id)
+                    await sleep(800)
+                    await wa_client.sendBlock(incomingMessage.from, currentBlock, variables)
+                    return { currentNodeId, currentBlockId, variables }
+                }
+                const captured = this.captureInput(flow, currentNodeId, currentBlockId, validation.value, variables)
+                variables = captured.variables
+                currentBlockId = captured.nextBlockId
+            } else {
+                const captured = this.captureInput(flow, currentNodeId, currentBlockId, incomingMessage.text, variables)
+                variables = captured.variables
+                currentBlockId = captured.nextBlockId
+            }
 
             // If next block is null the node is exhausted — follow the edge
             if (currentBlockId === null) {
@@ -62,10 +89,14 @@ class WaChatManager {
             }
         }
 
-        // ── 2. If no node yet, jump to the first node after the start node ────
+        // ── 2. If no node yet, start from the beginning — but only for fresh conversations.
+        //       If we just handled an input and reached the end, the flow is done.
         if (!currentNodeId) {
+            if (hadPendingInput) {
+                return { currentNodeId: null, currentBlockId: null, variables, ended: true }
+            }
             const startNode = flow.nodes.find((n) => n.type === "start")
-            if (!startNode) return { currentNodeId: null, currentBlockId: null, variables }
+            if (!startNode) return { currentNodeId: null, currentBlockId: null, variables, ended: true }
             currentNodeId = this.followEdge(flow.edges, startNode.id, null)
             currentBlockId = null
         }
@@ -133,11 +164,65 @@ class WaChatManager {
             }
         }
 
-        // Flow ended
-        return { currentNodeId: null, currentBlockId: null, variables }
+        // Flow ended — mark so further messages are ignored
+        return { currentNodeId: null, currentBlockId: null, variables, ended: true }
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private validateInput(
+        block: Block,
+        incomingMessage: IncomingMessage,
+        variables: Record<string, string | boolean | number>
+    ): { valid: boolean; error: string; value: string } {
+        const text = incomingMessage.text.trim()
+        const msgType = incomingMessage.type
+
+        const retryMsg = (raw: string | undefined) =>
+            interpolate(raw || BLOCK_RETRY_MESSAGES[block.type] || 'Invalid input, please try again.', variables)
+
+        switch (block.type) {
+            case 'text-input': {
+                if (!text) return { valid: false, error: retryMsg(block.content.retryMessage as string | undefined), value: '' }
+                return { valid: true, error: '', value: text }
+            }
+
+            case 'number-input': {
+                if (msgType !== 'text' || !text) return { valid: false, error: retryMsg(block.content.retryMessage as string | undefined), value: '' }
+                const num = Number(text)
+                if (isNaN(num)) return { valid: false, error: retryMsg(block.content.retryMessage as string | undefined), value: '' }
+                const min = block.content.min !== undefined && block.content.min !== '' ? Number(block.content.min) : undefined
+                const max = block.content.max !== undefined && block.content.max !== '' ? Number(block.content.max) : undefined
+                if (min !== undefined && !isNaN(min) && num < min) return { valid: false, error: retryMsg(block.content.retryMessage as string | undefined), value: '' }
+                if (max !== undefined && !isNaN(max) && num > max) return { valid: false, error: retryMsg(block.content.retryMessage as string | undefined), value: '' }
+                return { valid: true, error: '', value: text }
+            }
+
+            case 'email-input': {
+                if (msgType !== 'text' || !text || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text))
+                    return { valid: false, error: retryMsg(block.content.retryMessage as string | undefined), value: '' }
+                return { valid: true, error: '', value: text }
+            }
+
+            case 'website-input': {
+                if (msgType !== 'text' || !text) return { valid: false, error: retryMsg(block.content.retryMessage as string | undefined), value: '' }
+                try {
+                    new URL(text.startsWith('http') ? text : `https://${text}`)
+                    return { valid: true, error: '', value: text }
+                } catch {
+                    return { valid: false, error: retryMsg(block.content.retryMessage as string | undefined), value: '' }
+                }
+            }
+
+            case 'audio-input': {
+                if (msgType !== 'audio') return { valid: false, error: retryMsg(block.content.retryMessage as string | undefined), value: '' }
+                return { valid: true, error: '', value: incomingMessage.mediaId ?? '' }
+            }
+
+            default:
+                return { valid: true, error: '', value: text }
+        }
+    }
 
     private captureInput(
         flow: BotFlowData,

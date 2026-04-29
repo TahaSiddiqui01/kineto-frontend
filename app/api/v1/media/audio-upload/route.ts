@@ -18,7 +18,8 @@ export async function POST(req: NextRequest) {
     }
 
     // WhatsApp supports AAC, MP4 audio, MPEG (mp3), AMR, OGG (Opus)
-    const allowed = ["audio/aac", "audio/mp4", "audio/mpeg", "audio/amr", "audio/ogg"]
+    // audio/webm is the default format produced by the browser's MediaRecorder API
+    const allowed = ["audio/aac", "audio/mp4", "audio/mpeg", "audio/amr", "audio/ogg", "audio/webm"]
     if (!allowed.includes(file.type)) {
         return NextResponse.json({ error: "Unsupported format. Use AAC, MP3, M4A, AMR, or OGG." }, { status: 400 })
     }

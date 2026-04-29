@@ -11,6 +11,7 @@ import { FormatSection } from './format-section';
 export function NumberInputConfig({ block, onChange }: BlockConfigProps) {
   const placeholder = block.content.placeholder as string | undefined;
   const buttonLabel = block.content.buttonLabel as string | undefined;
+  const retryMessage = block.content.retryMessage as string | undefined;
   const min = block.content.min as string | undefined;
   const max = block.content.max as string | undefined;
   const step = block.content.step as string | undefined;
@@ -35,6 +36,14 @@ export function NumberInputConfig({ block, onChange }: BlockConfigProps) {
         fieldKey="buttonLabel"
         value={buttonLabel}
         placeholder="Send"
+        onChange={onChange}
+      />
+
+      <FieldWithVariable
+        label="Retry message"
+        fieldKey="retryMessage"
+        value={retryMessage}
+        placeholder="That doesn't look like a number. Please try again."
         onChange={onChange}
       />
 

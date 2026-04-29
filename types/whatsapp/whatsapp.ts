@@ -3,5 +3,6 @@ export interface IncomingMessage {
     id: string
     text: string
     type: string
+    mediaId?: string
     messages?: unknown[]
 }

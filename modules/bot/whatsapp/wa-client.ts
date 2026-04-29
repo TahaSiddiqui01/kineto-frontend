@@ -177,20 +177,16 @@ class WaClient {
                 )
             }
 
-            // ── Input prompts (send the question, then wait for reply) ────────
+            // ── Input blocks — placeholder is website-only; just wait for the reply ─
             case "text-input":
             case "number-input":
             case "email-input":
             case "phone-input":
             case "website-input":
             case "date-input":
-            case "time-input": {
-                const placeholder = block.content.placeholder as string | undefined
-                if (placeholder) {
-                    await this.sendText({ to, text: interpolate(placeholder, variables) })
-                }
+            case "time-input":
+            case "audio-input":
                 return true
-            }
 
             case "buttons-input": {
                 const buttons = (block.content.buttons as ButtonItem[] | undefined) ?? []

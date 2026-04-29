@@ -7,6 +7,7 @@ export interface ConversationState {
     currentNodeId: string | null
     currentBlockId: string | null
     variables: Record<string, string | boolean | number>
+    ended?: boolean
 }
 
 function key(botId: string, phoneNumber: string): string {

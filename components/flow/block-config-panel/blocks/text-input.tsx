@@ -64,6 +64,7 @@ function FieldWithVariable({
 export function TextInputConfig({ block, onChange }: BlockConfigProps) {
   const placeholder = block.content.placeholder as string | undefined;
   const buttonLabel = block.content.buttonLabel as string | undefined;
+  const retryMessage = block.content.retryMessage as string | undefined;
   const inputMode = (block.content.inputMode as string | undefined) ?? 'text';
   const saveAnswerTo = block.content.saveAnswerTo as string | undefined;
 
@@ -82,6 +83,14 @@ export function TextInputConfig({ block, onChange }: BlockConfigProps) {
         fieldKey="buttonLabel"
         value={buttonLabel}
         placeholder="Send"
+        onChange={onChange}
+      />
+
+      <FieldWithVariable
+        label="Retry message"
+        fieldKey="retryMessage"
+        value={retryMessage}
+        placeholder="Please send a text message."
         onChange={onChange}
       />
 
