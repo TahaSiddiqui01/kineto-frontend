@@ -28,6 +28,12 @@ export function ImageBubbleConfig({ block, onChange }: BlockConfigProps) {
         onChange={(patch) => onChange(patch)}
       />
 
+      {imageUrl?.toLowerCase().includes('.mp4') && (
+        <p className="text-[11px] text-amber-400/80 leading-snug">
+          ⚡ This GIF will be delivered as a video on WhatsApp
+        </p>
+      )}
+
       <div className="h-px bg-[#2e2f33]" />
 
       <div className="flex flex-col gap-1.5">
