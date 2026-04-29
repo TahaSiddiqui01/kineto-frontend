@@ -21,6 +21,9 @@ const BUBBLE_BLOCK_TYPES = new Set([
     "text-bubble", "image-bubble", "video-bubble", "document-bubble", "audio-bubble",
 ])
 
+// Input block types that actually send a prompt message on WhatsApp (non-silent)
+const WA_SENDS_PROMPT = new Set(["buttons-input"])
+
 class WaChatManager {
 
     extractMessage(body: unknown): IncomingMessage | null {
@@ -69,9 +72,11 @@ class WaChatManager {
                 const validation = this.validateInput(currentBlock, incomingMessage, variables)
                 if (!validation.valid) {
                     await wa_client.sendText({ to: incomingMessage.from, text: validation.error })
-                    await wa_client.showTyping(incomingMessage.id)
-                    await sleep(800)
-                    await wa_client.sendBlock(incomingMessage.from, currentBlock, variables)
+                    if (WA_SENDS_PROMPT.has(currentBlock.type)) {
+                        await wa_client.showTyping(incomingMessage.id)
+                        await sleep(800)
+                        await wa_client.sendBlock(incomingMessage.from, currentBlock, variables)
+                    }
                     return { currentNodeId, currentBlockId, variables }
                 }
                 const captured = this.captureInput(flow, currentNodeId, currentBlockId, validation.value, variables)
