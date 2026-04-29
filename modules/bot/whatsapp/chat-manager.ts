@@ -6,6 +6,8 @@ import type { ConversationState } from "@/lib/conversation-state.server"
 import type { ConditionItem } from "@/components/flow/block-config-panel/blocks/condition/condition-row"
 import { wa_client } from "./wa-client"
 
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
+
 const INPUT_BLOCK_TYPES = new Set([
     "text-input", "number-input", "email-input", "phone-input",
     "website-input", "date-input", "time-input", "buttons-input",
@@ -45,7 +47,8 @@ class WaChatManager {
     async resolveMessage({ state, flow, incomingMessage }: WaChatResolveParams): Promise<ConversationState> {
         let { currentNodeId, currentBlockId, variables } = state
 
-        console.log("[ChatManager] Resolving message variables:", variables)
+        // Mark as read + show typing indicator before the first reply
+        await wa_client.showTyping(incomingMessage.id)
 
         // ── 1. Capture response for the block we were waiting on ──────────────
         if (currentNodeId && currentBlockId) {
@@ -90,12 +93,18 @@ class WaChatManager {
                 const block = blocks[i]
 
                 if (BUBBLE_BLOCK_TYPES.has(block.type)) {
-                    await wa_client.sendBlock(incomingMessage.from, block, variables)
+                    await wa_client.showTyping(incomingMessage.id)
+                    await sleep(1200)
+                    const ok = await wa_client.sendBlock(incomingMessage.from, block, variables)
+                    if (!ok) return { currentNodeId: null, currentBlockId: null, variables }
                     continue
                 }
 
                 if (INPUT_BLOCK_TYPES.has(block.type)) {
-                    await wa_client.sendBlock(incomingMessage.from, block, variables)
+                    await wa_client.showTyping(incomingMessage.id)
+                    await sleep(1200)
+                    const ok = await wa_client.sendBlock(incomingMessage.from, block, variables)
+                    if (!ok) return { currentNodeId: null, currentBlockId: null, variables }
                     // Pause here — next message from user will be the answer
                     return { currentNodeId: currentNodeId!, currentBlockId: block.id, variables }
                 }

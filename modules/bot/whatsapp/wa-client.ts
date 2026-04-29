@@ -17,6 +17,23 @@ class WaClient {
         }
     }
 
+    async showTyping(messageId: string): Promise<void> {
+        try {
+            await fetch(`${this.baseUrl}/${this.phoneNumberId}/messages`, {
+                method: "POST",
+                headers: this.headers,
+                body: JSON.stringify({
+                    messaging_product: "whatsapp",
+                    status: "read",
+                    message_id: messageId,
+                    typing_indicator: { type: "text" },
+                }),
+            })
+        } catch {
+            // non-critical — don't fail the flow
+        }
+    }
+
     private async post(body: unknown): Promise<boolean> {
         try {
             const res = await fetch(`${this.baseUrl}/${this.phoneNumberId}/messages`, {
